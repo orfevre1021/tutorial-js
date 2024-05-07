@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
+import { skill_data } from "../data/skill_data.jsx";
 
 import {
   Chart as ChartJS,
@@ -22,42 +23,47 @@ ChartJS.register(
 
 const BarChart = () => {
   const [chartData, setChartData] = useState({
-    datasets: [],
+    labels: [],
+    datasets: [
+      {
+        label: "Sample Data",
+        data: [],
+        backgroundColor: "rgb(53, 162, 235, 0.4",
+        borderColor: "rgb(53, 162, 235)",
+        borderWidth: 1,
+      },
+    ],
   });
 
   const [chartOptions, setChartOptions] = useState({});
 
   useEffect(() => {
-    setChartData({
-      labels: ["Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"],
-      datasets: [
-        {
-          label: "インフラ系",
-          data: [1, 2, 3, 4, 5, 6, 7],
-          borderColor: "rgb(53, 162, 235)",
-          backgroundColor: "rgb(53, 162, 235, 0.4",
+    const fetchData = async () => {
+      const data = "../data/skill_data.jsx".json;
+      setChartData({
+        labels: data.map((user_data) => user_data.vender),
+        datasets: [
+          {
+            ...chartData.datasets[0],
+            data: data.map((user_data) => user_data.certification),
+          },
+        ],
+      });
+      setChartOptions({
+        plugins: {
+          legend: {
+            position: "bottom",
+          },
+          title: {
+            display: true,
+            text: "資格分布",
+          },
         },
-        {
-          label: "アプリ系",
-          data: [8, 9, 10, 11, 12, 13, 14],
-          borderColor: "rgb(255, 80, 115)",
-          backgroundColor: "rgb(53, 162, 235, 0.4",
-        },
-      ],
-    });
-    setChartOptions({
-      plugins: {
-        legend: {
-          position: "top",
-        },
-        title: {
-          display: true,
-          text: "資格分布",
-        },
-      },
-      maintainAspectRatio: false,
-      responsive: true,
-    });
+        maintainAspectRatio: false,
+        responsive: true,
+      });
+    };
+    fetchData();
   }, []);
 
   return (
