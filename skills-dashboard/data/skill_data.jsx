@@ -5,6 +5,7 @@ export const skill_data = [
     type1: "アプリ",
     type2: "フロントエンド",
     skill_name: "HTML",
+    number: 1,
   },
   {
     id: 2,
@@ -12,6 +13,7 @@ export const skill_data = [
     type1: "アプリ",
     type2: "バックエンド",
     skill_name: "JavaScript",
+    number: 2,
   },
   {
     id: 3,
@@ -19,6 +21,7 @@ export const skill_data = [
     type1: "インフラ",
     type2: "仮想化",
     skill_name: "Hyper-V",
+    number: 3,
   },
   {
     id: 4,
@@ -26,6 +29,7 @@ export const skill_data = [
     type1: "インフラ",
     type2: "クラウド",
     skill_name: "AWS",
+    number: 4,
   },
   {
     id: 5,
@@ -33,5 +37,6 @@ export const skill_data = [
     type1: "インフラ",
     type2: "クラウド",
     skill_name: "Azure",
+    number: 5,
   },
 ];

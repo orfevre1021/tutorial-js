@@ -39,13 +39,12 @@ const BarChart = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = "../data/skill_data.jsx".json;
       setChartData({
-        labels: data.map((user_data) => user_data.vender),
+        labels: skill_data.map((item) => item.type1),
         datasets: [
           {
             ...chartData.datasets[0],
-            data: data.map((user_data) => user_data.certification),
+            data: skill_data.map((item) => item.number),
           },
         ],
       });
