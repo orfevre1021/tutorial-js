@@ -32,9 +32,15 @@ const BarChart = () => {
       labels: ["Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"],
       datasets: [
         {
-          label: "Sales $",
-          data: [18127, 22201, 19490, 17938, 24182, 17842, 22475],
+          label: "インフラ系",
+          data: [1, 2, 3, 4, 5, 6, 7],
           borderColor: "rgb(53, 162, 235)",
+          backgroundColor: "rgb(53, 162, 235, 0.4",
+        },
+        {
+          label: "アプリ系",
+          data: [8, 9, 10, 11, 12, 13, 14],
+          borderColor: "rgb(255, 80, 115)",
           backgroundColor: "rgb(53, 162, 235, 0.4",
         },
       ],
