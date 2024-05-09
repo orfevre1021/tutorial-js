@@ -23,11 +23,11 @@ const Sidebar = ({ children }) => {
           </Link>
 
           <span className="border-b-[1px] border-gray-200 w-full p-2 mb-2"></span>
-          <Link href="/forms">
+          {/* <Link href="/forms">
             <div className="bg-gray-100 hover:bg-gray-200 cursor-pointer mt-4 mb-4 p-3 rounded-lg inline-block">
               <MdOutlineAppRegistration size={20} />
             </div>
-          </Link>
+          </Link> */}
 
           <Link href="/users">
             <div className="bg-gray-100 hover:bg-gray-200 cursor-pointer mt-4 mb-4 p-3 rounded-lg inline-block">
@@ -35,11 +35,11 @@ const Sidebar = ({ children }) => {
             </div>
           </Link>
 
-          <Link href="/skills">
+          {/* <Link href="/skills">
             <div className="bg-gray-100 hover:bg-gray-200 cursor-pointer mt-4 mb-4 p-3 rounded-lg inline-block">
               <GiSkills size={20} />
             </div>
-          </Link>
+          </Link> */}
 
           <Link href="/settings">
             <div className="bg-gray-100 hover:bg-gray-200 cursor-pointer mt-4 mb-2 p-3 rounded-lg inline-block">

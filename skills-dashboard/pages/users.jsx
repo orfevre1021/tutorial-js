@@ -1,14 +1,31 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { BsPersonFill, BsThreeDotsVertical } from "react-icons/bs";
 import { user_data } from "../data/user_data.jsx";
 import Header from "../components/Header.jsx";
+import Link from "next/link";
 
 const users = () => {
+  const [dropdownOpen, setDropdownOpen] = useState(null);
+  const dropdownRef = useRef(null); // ドロップダウンメニューを参照するためのref
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(null); // メニュー外のクリックでドロップダウンを閉じる
+      }
+    };
+
+    // ブラウザのクリックイベントを監視
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      // コンポーネントのアンマウント時にイベントリスナーを削除
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="bg-gray-100 min-h-screen">
-      {/* <div className="flex justify-between p-4">
-        <h2 className="text-2xl font-bold p-4">ユーザ一覧</h2>
-      </div> */}
       <Header title="ユーザ一覧" user="Tanaka" />
 
       <div className="p-4">
@@ -31,12 +48,12 @@ const users = () => {
                   </div>
                   <div className="pl-4">
                     <p>
-                      {user.name}
+                      {user.user_name}
                       <br></br>
                     </p>
                     <p className="text-gray-400">
                       {"（"}
-                      {user.name_code}
+                      {user.employee_code}
                       {"）"}
                     </p>
                   </div>
@@ -44,11 +61,43 @@ const users = () => {
                 <p className="hidden md:flex">
                   {user.department} {user.division}
                 </p>
-                <p className="sm:text-left text-right">{user.mail}</p>
+                <p className="sm:text-left text-right">{user.email_address}</p>
 
                 <div className="sm:flex hidden justify-between items-center">
-                  <p>{user.date}</p>
-                  <BsThreeDotsVertical />
+                  <p>{user.updated_date}</p>
+                  <BsThreeDotsVertical
+                    onClick={() => setDropdownOpen(user.employee_code)}
+                  />
+                  {dropdownOpen === user.employee_code && (
+                    <div
+                      ref={dropdownRef}
+                      className="absolute mt-12 right-0 bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+                    >
+                      <ul>
+                        <li>
+                          <Link href={`/view/${user.employee_code}`}>
+                            <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              閲覧
+                            </div>
+                          </Link>
+                        </li>
+                        <li>
+                          <Link href={`/edit/${user.employee_code}`}>
+                            <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              編集
+                            </div>
+                          </Link>
+                        </li>
+                        <li>
+                          <Link href={`/delete/${user.employee_code}`}>
+                            <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              削除
+                            </div>
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </li>
             ))}
