@@ -1,4 +1,5 @@
 import { useRouter } from "next/router";
+import Header from "../../components/Header.jsx";
 
 export default function deleteUser() {
   const router = useRouter();
