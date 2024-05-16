@@ -1,14 +1,40 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BsPersonFill, BsThreeDotsVertical } from "react-icons/bs";
-import { user_data } from "../data/user_data.jsx";
+import { FaSort } from "react-icons/fa";
 import Header from "../components/Header.jsx";
 import Link from "next/link";
 
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
-
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "ascending",
+  });
   const [dropdownOpen, setDropdownOpen] = useState(null);
-  const dropdownRef = useRef(null); // ドロップダウンメニューを参照するためのref
+  const dropdownRef = useRef(null);
+
+  const handleSort = (key) => {
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedEmployees = [...employees].sort((a, b) => {
+    if (sortConfig.key) {
+      const aValue = a[sortConfig.key].S || a[sortConfig.key].N;
+      const bValue = b[sortConfig.key].S || b[sortConfig.key].N;
+      if (aValue < bValue) {
+        return sortConfig.direction === "ascending" ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === "ascending" ? 1 : -1;
+      }
+      return 0;
+    }
+    return employees;
+  });
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -33,7 +59,17 @@ const EmployeeList = () => {
           "https://yurdpuchaa.execute-api.ap-northeast-1.amazonaws.com/dev3/users"
         );
         const data = await response.json();
-        setEmployees(data.Items);
+
+        // updated_date.S を文字列として比較して昇順にソート
+        const sortedData = data.Items.sort(
+          (a, b) => new Date(b.updated_date.S) - new Date(a.updated_date.S)
+        );
+
+        // employee_code.N を数値として比較して昇順にソート
+        // const sortedData = data.Items.sort(
+        //   (a, b) => parseInt(a.employee_code.N) - parseInt(b.employee_code.N)
+        // );
+        setEmployees(sortedData);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       }
@@ -44,44 +80,78 @@ const EmployeeList = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <Header title="ユーザ一覧" user="Tanaka" />
+      <Header user="Tanaka" />
       <div className="p-4">
         <div className="w-full m-auto p-4 border rounded-lg bg-white overflow-y-auto">
-          <div className="my-3 p-2 grid md:grid-cols-4 sm:grid-cols-3 grid-cols-2 items-center justify-between cursor-pointer">
-            <span>氏名（氏名コード）</span>
-            <span className="sm:text-left text-right">部署</span>
-            <span className="hidden md:grid">メールアドレス</span>
-            <span className="hidden sm:grid">最新更新</span>
+          <div className="my-3 p-2 grid md:grid-cols-6 sm:grid-cols-3 grid-cols-2 items-center justify-between cursor-pointer">
+            <div
+              className=" flex items-center"
+              onClick={() => handleSort("user_name")}
+            >
+              氏名
+              <FaSort className="ml-2" />
+            </div>
+
+            <div
+              className="flex items-center"
+              onClick={() => handleSort("employee_code")}
+            >
+              氏名コード
+              <FaSort className="ml-2" />
+            </div>
+
+            <div
+              className="flex items-center"
+              onClick={() => handleSort("department")}
+            >
+              事業部
+              <FaSort className="ml-2" />
+            </div>
+
+            <div
+              className="flex items-center"
+              onClick={() => handleSort("division")}
+            >
+              担当
+              <FaSort className="ml-2" />
+            </div>
+
+            <div
+              className="flex items-center"
+              onClick={() => handleSort("position")}
+            >
+              役職
+              <FaSort className="ml-2" />
+            </div>
+
+            <div
+              className="flex items-center"
+              onClick={() => handleSort("updated_date")}
+            >
+              最新更新
+              <FaSort className="ml-2" />
+            </div>
           </div>
           <ul>
-            {employees.map((item, index) => (
+            {sortedEmployees.map((item, index) => (
               <li
                 key={index}
-                className="bg-gray-50 hover:bg-gray-100 rounded-lg my-3 p-2 grid md:grid-cols-4 sm:grid-cols-3 grid-cols-2 items-center justify-between cursor-pointer"
+                className="bg-gray-50 hover:bg-gray-100 rounded-lg my-3 p-2 grid md:grid-cols-6 sm:grid-cols-3 grid-cols-2 items-center justify-between cursor-pointer"
               >
                 <div className="flex items-center">
-                  <div className="bg-purple-100 p-3 rounded-lg">
-                    <BsPersonFill className="text-purple-800" />
+                  <div className="bg-blue-100 p-3 rounded-lg">
+                    <BsPersonFill className="text-blue-800" />
                   </div>
                   <div className="pl-4">
-                    <p>
-                      {item.user_name.S}
-                      <br></br>
-                    </p>
-                    <p className="text-gray-400">
-                      {"（"}
-                      {item.employee_code.N}
-                      {"）"}
-                    </p>
+                    <p>{item.user_name.S}</p>
                   </div>
                 </div>
 
-                <p className="hidden md:flex">
-                  {item.department.S} {item.division.S} {item.position.S}
-                </p>
-                <p className="sm:text-left text-right">
-                  {item.email_address.S}
-                </p>
+                <p className="hidden md:flex">{item.employee_code.N}</p>
+
+                <p className="hidden md:flex">{item.department.S}</p>
+                <p className="hidden md:flex">{item.division.S}</p>
+                <p className="sm:text-left text-right">{item.position.S}</p>
 
                 <div className="sm:flex hidden justify-between items-center">
                   <p>{item.updated_date.S}</p>

@@ -1,62 +1,89 @@
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
-
-//react-icons
-//https://react-icons.github.io/react-icons/
+import { useRouter } from "next/router"; // useRouterフックのインポート
 import { RxPerson } from "react-icons/rx";
 import { FiSettings } from "react-icons/fi";
 import { SiSkillshare } from "react-icons/si";
 import { FaSignOutAlt } from "react-icons/fa";
-import { GiSkills } from "react-icons/gi";
 import { MdOutlineAppRegistration } from "react-icons/md";
+import { RxDashboard } from "react-icons/rx";
+import Header from "./Header"; // Headerのインポート
+import Footer from "./Footer"; // Footerのインポート
 
 const Sidebar = ({ children }) => {
+  const router = useRouter();
+  const currentRoute = router.pathname;
+
   return (
     <div className="flex">
-      <div className="fixed w-20 h-screen p-4 bg-[#475569] border-r-[1px] flex flex-col justify-between">
-        <div className="flex flex-col items-center">
-          <Link href="/">
-            <div className="bg-purple-800 text-white p-3 rounded-lg inline-block mt-1">
-              <SiSkillshare size={20} />
-            </div>
-          </Link>
+      <div className="fixed w-64 h-screen p-4 bg-blue-700 text-white flex flex-col justify-between z-20">
+        <div>
+          <div className="flex items-center justify-center mb-6">
+            <Link href="/">
+              <div className="text-white p-3 rounded-lg inline-block">
+                <SiSkillshare size={100} />
+              </div>
+            </Link>
+          </div>
 
-          <span className="border-b-[1px] border-gray-200 w-full p-2 mb-2"></span>
-          {/* <Link href="/forms">
-            <div className="bg-gray-100 hover:bg-gray-200 cursor-pointer mt-4 mb-4 p-3 rounded-lg inline-block">
-              <MdOutlineAppRegistration size={20} />
-            </div>
-          </Link> */}
-
-          <Link href="/users">
-            <div className="bg-gray-100 hover:bg-gray-200 cursor-pointer mt-4 mb-4 p-3 rounded-lg inline-block">
-              <RxPerson size={20} />
-            </div>
-          </Link>
-
-          {/* <Link href="/skills">
-            <div className="bg-gray-100 hover:bg-gray-200 cursor-pointer mt-4 mb-4 p-3 rounded-lg inline-block">
-              <GiSkills size={20} />
-            </div>
-          </Link> */}
-
-          <Link href="/settings">
-            <div className="bg-gray-100 hover:bg-gray-200 cursor-pointer mt-4 mb-2 p-3 rounded-lg inline-block">
-              <FiSettings size={20} />
-            </div>
-          </Link>
-
-          <span className="border-b-[1px] border-gray-200 w-full p-2 mb-2"></span>
-
-          <Link href="/signout">
-            <div className="bg-gray-100 hover:bg-gray-200 cursor-pointer mt-4 mb-4 p-3 rounded-lg inline-block">
-              <FaSignOutAlt size={20} />
-            </div>
-          </Link>
+          <nav className="flex flex-col space-y-4">
+            <Link href="/overview">
+              <div
+                className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
+                  currentRoute === "/overview" ? "bg-blue-500" : "bg-blue-700"
+                }`}
+              >
+                <RxDashboard size={24} />
+                <span className="text-lg">ダッシュボード</span>
+              </div>
+            </Link>
+            <Link href="/register">
+              <div
+                className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
+                  currentRoute === "/register" ? "bg-blue-500" : "bg-blue-700"
+                }`}
+              >
+                <MdOutlineAppRegistration size={24} />
+                <span className="text-lg">ユーザ登録</span>
+              </div>
+            </Link>
+            <Link href="/users">
+              <div
+                className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
+                  currentRoute === "/users" ? "bg-blue-500" : "bg-blue-700"
+                }`}
+              >
+                <RxPerson size={24} />
+                <span className="text-lg">ユーザ一覧</span>
+              </div>
+            </Link>
+            <Link href="/settings">
+              <div
+                className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
+                  currentRoute === "/settings" ? "bg-blue-500" : "bg-blue-700"
+                }`}
+              >
+                <FiSettings size={24} />
+                <span className="text-lg">設定</span>
+              </div>
+            </Link>
+          </nav>
         </div>
+
+        <Link href="/signout">
+          <div className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300">
+            <FaSignOutAlt size={24} />
+            <span className="text-lg">サインアウト</span>
+          </div>
+        </Link>
       </div>
-      <main className="ml-20 w-full">{children}</main>
+      <div className="flex flex-col flex-1 ml-64">
+        <Header user="Tanaka" />
+        <main className="mt-16 mb-16 p-6 bg-gray-100 flex-1 min-h-screen">
+          {children}
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 };
