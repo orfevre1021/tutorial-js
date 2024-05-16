@@ -481,7 +481,7 @@ const EmployeeForm = () => {
 
             {activeTab === "certifications" && (
               <div className="mb-24">
-                <h3 className="text-gray-700 text-2xl font-bold my-14">資格</h3>
+                <h3 className="text-gray-700 text-2xl font-bold my-14"></h3>
                 {certifications.map((cert, index) => (
                   <div
                     key={index}
