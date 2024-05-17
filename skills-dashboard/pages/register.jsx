@@ -15,120 +15,120 @@ const EmployeeForm = () => {
   const [division, setDivision] = useState("");
   const [position, setPosition] = useState("");
   const [skills, setSkills] = useState([
-    { section: "IaaS", skill_name: "仮想マシン", level: 0 },
-    { section: "IaaS", skill_name: "オートスケーリング", level: 0 },
-    { section: "IaaS", skill_name: "ロードバランサー", level: 0 },
-    { section: "Databases", skill_name: "SQLDB", level: 0 },
-    { section: "Databases", skill_name: "NoSQLDB", level: 0 },
-    { section: "Databases", skill_name: "インメモリDB", level: 0 },
-    { section: "Databases", skill_name: "グラフDB", level: 0 },
-    { section: "Databases", skill_name: "データウェアハウス", level: 0 },
-    { section: "Storage", skill_name: "BlockStorage", level: 0 },
-    { section: "Storage", skill_name: "FileStorage", level: 0 },
-    { section: "Storage", skill_name: "ObjectStorage", level: 0 },
-    { section: "Analytics&ML", skill_name: "データレイク", level: 0 },
-    { section: "Analytics&ML", skill_name: "データ分析", level: 0 },
-    { section: "Analytics&ML", skill_name: "ストリームデータ処理", level: 0 },
-    { section: "Analytics&ML", skill_name: "ETL", level: 0 },
-    { section: "Analytics&ML", skill_name: "データ可視化", level: 0 },
-    { section: "Analytics&ML", skill_name: "機械学習", level: 0 },
-    { section: "DeveloperTools", skill_name: "ソース管理", level: 0 },
-    { section: "DeveloperTools", skill_name: "WebIDE", level: 0 },
-    { section: "DeveloperTools", skill_name: "CI/CDツール", level: 0 },
+    { section: "IaaS", skill_name: "仮想マシン", level: 3 },
+    { section: "IaaS", skill_name: "オートスケーリング", level: 3 },
+    { section: "IaaS", skill_name: "ロードバランサー", level: 3 },
+    { section: "Databases", skill_name: "SQLDB", level: 3 },
+    { section: "Databases", skill_name: "NoSQLDB", level: 3 },
+    { section: "Databases", skill_name: "インメモリDB", level: 3 },
+    { section: "Databases", skill_name: "グラフDB", level: 3 },
+    { section: "Databases", skill_name: "データウェアハウス", level: 3 },
+    { section: "Storage", skill_name: "BlockStorage", level: 3 },
+    { section: "Storage", skill_name: "FileStorage", level: 3 },
+    { section: "Storage", skill_name: "ObjectStorage", level: 3 },
+    { section: "Analytics&ML", skill_name: "データレイク", level: 3 },
+    { section: "Analytics&ML", skill_name: "データ分析", level: 3 },
+    { section: "Analytics&ML", skill_name: "ストリームデータ処理", level: 3 },
+    { section: "Analytics&ML", skill_name: "ETL", level: 3 },
+    { section: "Analytics&ML", skill_name: "データ可視化", level: 3 },
+    { section: "Analytics&ML", skill_name: "機械学習", level: 3 },
+    { section: "DeveloperTools", skill_name: "ソース管理", level: 3 },
+    { section: "DeveloperTools", skill_name: "WebIDE", level: 3 },
+    { section: "DeveloperTools", skill_name: "CI/CDツール", level: 3 },
     {
       section: "Security,Identity,Compliance",
       skill_name: "複数アカウント管理",
-      level: 0,
+      level: 3,
     },
     {
       section: "Security,Identity,Compliance",
       skill_name: "証明書管理",
-      level: 0,
+      level: 3,
     },
     {
       section: "Security,Identity,Compliance",
       skill_name: "暗号化/復号化",
-      level: 0,
+      level: 3,
     },
     {
       section: "Security,Identity,Compliance",
       skill_name: "モバイル認証",
-      level: 0,
+      level: 3,
     },
     {
       section: "Security,Identity,Compliance",
       skill_name: "アクセス制御",
-      level: 0,
+      level: 3,
     },
     {
       section: "Migration,Transfer",
       skill_name: "VMマイグレーション",
-      level: 0,
+      level: 3,
     },
     {
       section: "Migration,Transfer",
       skill_name: "DBマイグレーション",
-      level: 0,
+      level: 3,
     },
     {
       section: "Migration,Transfer",
       skill_name: "大容量データ移行",
-      level: 0,
+      level: 3,
     },
     {
       section: "Management,Governance",
       skill_name: "ソース管理/監視",
-      level: 0,
+      level: 3,
     },
     {
       section: "Management,Governance",
       skill_name: "イベント監視",
-      level: 0,
+      level: 3,
     },
     {
       section: "Management,Governance",
       skill_name: "ログ監視",
-      level: 0,
+      level: 3,
     },
     {
       section: "CaaS",
       skill_name: "コンテナ",
-      level: 0,
+      level: 3,
     },
     {
       section: "CaaS",
       skill_name: "コンテナオーケストレーション",
-      level: 0,
+      level: 3,
     },
     {
       section: "FaaS",
       skill_name: "サーバレス",
-      level: 0,
+      level: 3,
     },
     {
       section: "クラウド内NW",
       skill_name: "仮想NW",
-      level: 0,
+      level: 3,
     },
     {
       section: "クラウド内NW",
       skill_name: "DNS",
-      level: 0,
+      level: 3,
     },
     {
       section: "クラウド内NW",
       skill_name: "CDN",
-      level: 0,
+      level: 3,
     },
     {
       section: "オンプレ連携",
       skill_name: "専用線接続",
-      level: 0,
+      level: 3,
     },
     {
       section: "オンプレ連携",
       skill_name: "ハイブリッドストレージ",
-      level: 0,
+      level: 3,
     },
   ]);
   const [certifications, setCertifications] = useState([]);
@@ -466,7 +466,15 @@ const EmployeeForm = () => {
                                   : "text-gray-300"
                               }`}
                               onClick={() =>
-                                handleSkillChange(index, "level", level)
+                                handleSkillChange(
+                                  skills.findIndex(
+                                    (s) =>
+                                      s.section === skill.section &&
+                                      s.skill_name === skill.skill_name
+                                  ),
+                                  "level",
+                                  level
+                                )
                               }
                             >
                               ★
@@ -481,7 +489,7 @@ const EmployeeForm = () => {
 
             {activeTab === "certifications" && (
               <div className="mb-24">
-                <h3 className="text-gray-700 text-2xl font-bold my-14"></h3>
+                <h3 className="text-gray-700 text-2xl font-bold my-14">資格</h3>
                 {certifications.map((cert, index) => (
                   <div
                     key={index}
