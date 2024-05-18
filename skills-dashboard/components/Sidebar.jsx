@@ -37,7 +37,7 @@ const Sidebar = ({ children }) => {
                 <span className="text-lg">ダッシュボード</span>
               </div>
             </Link>
-            <Link href="/register">
+            {/* <Link href="/register">
               <div
                 className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
                   currentRoute === "/register" ? "bg-blue-500" : "bg-blue-700"
@@ -46,7 +46,7 @@ const Sidebar = ({ children }) => {
                 <MdOutlineAppRegistration size={24} />
                 <span className="text-lg">ユーザ登録</span>
               </div>
-            </Link>
+            </Link> */}
             <Link href="/users">
               <div
                 className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
@@ -54,7 +54,7 @@ const Sidebar = ({ children }) => {
                 }`}
               >
                 <RxPerson size={24} />
-                <span className="text-lg">ユーザ一覧</span>
+                <span className="text-lg">ユーザー</span>
               </div>
             </Link>
             <Link href="/settings">
