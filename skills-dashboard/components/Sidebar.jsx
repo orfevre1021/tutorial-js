@@ -1,22 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router"; // useRouterフックのインポート
+import { useRouter } from "next/router";
 import { RxPerson } from "react-icons/rx";
 import { FiSettings } from "react-icons/fi";
 import { SiSkillshare } from "react-icons/si";
 import { FaSignOutAlt } from "react-icons/fa";
 import { MdOutlineAppRegistration } from "react-icons/md";
 import { RxDashboard } from "react-icons/rx";
-import Header from "./Header"; // Headerのインポート
-import Footer from "./Footer"; // Footerのインポート
+import Header from "./Header";
+import Footer from "./Footer";
 
 const Sidebar = ({ children }) => {
   const router = useRouter();
   const currentRoute = router.pathname;
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
 
   return (
     <div className="flex">
-      <div className="fixed w-64 h-screen p-4 bg-blue-700 text-white flex flex-col justify-between z-20">
+      {/* サイドバーボタン */}
+      <button
+        className="fixed z-30 flex items-center justify-center p-2 text-white bg-blue-700 rounded-md lg:hidden"
+        onClick={toggleSidebar}
+      >
+        {isOpen ? "閉じる" : "メニュー"}
+      </button>
+
+      <div
+        className={`fixed w-64 h-screen p-4 bg-blue-700 text-white flex flex-col justify-between z-20 transition-transform transform ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
+      >
         <div>
           <div className="flex items-center justify-center mb-6">
             <Link href="/">
@@ -37,16 +54,6 @@ const Sidebar = ({ children }) => {
                 <span className="text-lg">ダッシュボード</span>
               </div>
             </Link>
-            {/* <Link href="/register">
-              <div
-                className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
-                  currentRoute === "/register" ? "bg-blue-500" : "bg-blue-700"
-                }`}
-              >
-                <MdOutlineAppRegistration size={24} />
-                <span className="text-lg">ユーザ登録</span>
-              </div>
-            </Link> */}
             <Link href="/users">
               <div
                 className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
@@ -77,7 +84,7 @@ const Sidebar = ({ children }) => {
           </div>
         </Link>
       </div>
-      <div className="flex flex-col flex-1 ml-64">
+      <div className="flex flex-col flex-1 lg:ml-64">
         <Header user="Tanaka" />
         <main className="mt-16 mb-16 p-6 bg-gray-100 flex-1 min-h-screen">
           {children}
