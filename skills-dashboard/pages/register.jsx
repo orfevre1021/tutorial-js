@@ -18,7 +18,6 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
-// API Gatewayのエンドポイント
 const API_ENDPOINT =
   "https://yurdpuchaa.execute-api.ap-northeast-1.amazonaws.com/dev6/register";
 
@@ -157,7 +156,13 @@ const EmployeeForm = () => {
       }
       return cert;
     });
+
+    // Clear errors for the current certification
+    const updatedErrors = { ...errors };
+    delete updatedErrors[`certifications[${index}]`];
+
     setCertifications(updatedCertifications);
+    setErrors(updatedErrors);
   };
 
   const handleSkillChange = (index, value) => {
@@ -172,7 +177,13 @@ const EmployeeForm = () => {
 
   const handleCertificationDelete = (index) => {
     const updatedCertifications = certifications.filter((_, i) => i !== index);
+
+    // Remove the error associated with the deleted certification
+    const updatedErrors = { ...errors };
+    delete updatedErrors[`certifications[${index}]`];
+
     setCertifications(updatedCertifications);
+    setErrors(updatedErrors);
   };
 
   const validateForm = () => {
@@ -189,7 +200,7 @@ const EmployeeForm = () => {
         !cert.certification_name ||
         !cert.vender ||
         !cert.acquired_date ||
-        !cert.level
+        cert.level === undefined
       ) {
         newErrors[`certifications[${index}]`] =
           "すべてのフィールドを入力するか、資格を削除してください";
@@ -250,7 +261,7 @@ const EmployeeForm = () => {
       alert("データが正常に送信されました！");
       router.push(
         `/users?newUser=true&userName=${encodeURIComponent(user_name)}`
-      ); // 成功後にユーザ一覧ページに遷移
+      );
     } catch (error) {
       console.error("Error:", error);
       alert("データの送信に失敗しました");
@@ -337,11 +348,11 @@ const EmployeeForm = () => {
               基本情報
             </Heading>
             <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
-              基本情報は必須入力値です。
+              必須入力値です。
             </Box>
             <VStack spacing={6} align="stretch">
               <Box>
-                <Text mb={2}>氏名コード（数字7桁）</Text>
+                <Text mb={2}>社員コード（数字7桁）</Text>
                 <Input
                   type="text"
                   value={employee_code}
@@ -395,7 +406,7 @@ const EmployeeForm = () => {
               所属情報
             </Heading>
             <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
-              所属情報は必須入力値です。
+              必須入力値です。
             </Box>
             <VStack spacing={6} align="stretch">
               <Box>
@@ -467,7 +478,7 @@ const EmployeeForm = () => {
             スキル
           </Heading>
           <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
-            スキルは任意入力値です。デフォルト値は0です。
+            任意入力値です。<br></br>スキルレベルのデフォルト値は0です。
           </Box>
           <VStack spacing={6} align="stretch">
             {skillSections.map((section) => (
@@ -475,7 +486,7 @@ const EmployeeForm = () => {
                 <Heading
                   as="h3"
                   size="md"
-                  mb={4}
+                  mb={8}
                   borderBottom="2px solid black"
                 >
                   {section}
@@ -530,7 +541,7 @@ const EmployeeForm = () => {
             資格
           </Heading>
           <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
-            資格は任意入力値です。<br></br>
+            任意入力値です。<br></br>
             資格追加がある場合は「追加」、追加を取り消す場合は「削除」をクリックしてください。
           </Box>
           <VStack spacing={6} align="stretch">
@@ -584,7 +595,7 @@ const EmployeeForm = () => {
                   <Flex align="center">
                     <Slider
                       flex="1"
-                      value={cert.level || 1}
+                      value={cert.level ?? 1}
                       min={1}
                       max={3}
                       step={1}
@@ -624,7 +635,9 @@ const EmployeeForm = () => {
             ))}
             <Button
               colorScheme="blue"
-              onClick={() => setCertifications([...certifications, {}])}
+              onClick={() =>
+                setCertifications([...certifications, { level: 1 }])
+              }
             >
               追加
             </Button>
