@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   Container,
-  Divider,
   Flex,
   Grid,
   Heading,
@@ -15,6 +14,7 @@ import {
   SliderThumb,
   Text,
   VStack,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
@@ -160,10 +160,10 @@ const EmployeeForm = () => {
     setCertifications(updatedCertifications);
   };
 
-  const handleSkillChange = (index, field, value) => {
+  const handleSkillChange = (index, value) => {
     const updatedSkills = skills.map((skill, i) => {
       if (i === index) {
-        return { ...skill, [field]: value };
+        return { ...skill, level: value };
       }
       return skill;
     });
@@ -192,7 +192,7 @@ const EmployeeForm = () => {
         !cert.level
       ) {
         newErrors[`certifications[${index}]`] =
-          "すべての資格フィールドを入力するか、資格を削除してください";
+          "すべてのフィールドを入力するか、資格を削除してください";
       }
     });
     return newErrors;
@@ -272,14 +272,73 @@ const EmployeeForm = () => {
     "オンプレ連携",
   ];
 
+  const renderSkillMarks = () => {
+    const skillLevelDescriptions = [
+      "経験なし",
+      "基礎学習した",
+      "指導ありで実施できる",
+      "指導ありで実施した",
+      "一人で実施できる",
+      "一人で実施した",
+      "指導できる（アソシ）",
+      "その道のプロ（シニア）",
+      "第一人者（エグゼ）",
+    ];
+
+    return [...Array(9)].map((_, i) => (
+      <Tooltip
+        key={i}
+        label={skillLevelDescriptions[i] || `スキルレベル ${i}`}
+        hasArrow
+        placement="top"
+      >
+        <Box
+          position="absolute"
+          left={`${(i / 8) * 100}%`}
+          transform="translateX(-50%)"
+          height="12px"
+          width="2px"
+          bg="blue.500"
+          _hover={{ width: "1cm" }}
+        />
+      </Tooltip>
+    ));
+  };
+
+  const renderCertMarks = () => {
+    const certLevelDescriptions = ["初級", "中級", "上級"];
+
+    return [...Array(3)].map((_, i) => (
+      <Tooltip
+        key={i}
+        label={certLevelDescriptions[i] || `資格レベル ${i + 1}`}
+        hasArrow
+        placement="top"
+      >
+        <Box
+          position="absolute"
+          left={`${(i / 2) * 100}%`}
+          transform="translateX(-50%)"
+          height="12px"
+          width="2px"
+          bg="blue.500"
+          _hover={{ width: "1cm" }}
+        />
+      </Tooltip>
+    ));
+  };
+
   return (
     <Container maxW="90%" p={4}>
       <form onSubmit={handleSubmit}>
         <Grid templateColumns="repeat(2, 1fr)" gap={6}>
           <Box bg="white" borderWidth="1px" borderRadius="lg" p={6}>
-            <Heading as="h2" size="lg" mb={4}>
+            <Heading as="h2" size="lg" mb={6}>
               基本情報
             </Heading>
+            <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
+              基本情報は必須入力値です。
+            </Box>
             <VStack spacing={6} align="stretch">
               <Box>
                 <Text mb={2}>氏名コード（数字7桁）</Text>
@@ -332,9 +391,12 @@ const EmployeeForm = () => {
             </VStack>
           </Box>
           <Box bg="white" borderWidth="1px" borderRadius="lg" p={6}>
-            <Heading as="h2" size="lg" mb={4}>
+            <Heading as="h2" size="lg" mb={6}>
               所属情報
             </Heading>
+            <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
+              所属情報は必須入力値です。
+            </Box>
             <VStack spacing={6} align="stretch">
               <Box>
                 <Text mb={2}>事業部</Text>
@@ -401,9 +463,12 @@ const EmployeeForm = () => {
           </Box>
         </Grid>
         <Box bg="gray.50" borderWidth="1px" borderRadius="lg" p={6} mt={6}>
-          <Heading as="h2" size="lg" mb={4}>
+          <Heading as="h2" size="lg" mb={6}>
             スキル
           </Heading>
+          <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
+            スキルは任意入力値です。デフォルト値は0です。
+          </Box>
           <VStack spacing={6} align="stretch">
             {skillSections.map((section) => (
               <Box key={section} mb={6}>
@@ -423,12 +488,17 @@ const EmployeeForm = () => {
                       <Flex align="center">
                         <Slider
                           flex="1"
-                          defaultValue={skill.level}
+                          value={skill.level}
                           min={0}
-                          max={9}
+                          max={8}
                           step={1}
                           onChange={(val) =>
-                            handleSkillChange(index, "level", val)
+                            handleSkillChange(
+                              skills.findIndex(
+                                (s) => s.skill_name === skill.skill_name
+                              ),
+                              val
+                            )
                           }
                         >
                           <SliderTrack
@@ -436,7 +506,7 @@ const EmployeeForm = () => {
                             height="10px"
                             borderRadius="5px"
                           >
-                            <Box position="relative" right={10} />
+                            {renderSkillMarks()}
                             <SliderFilledTrack
                               bg="blue.500"
                               borderRadius="5px"
@@ -456,9 +526,13 @@ const EmployeeForm = () => {
           </VStack>
         </Box>
         <Box bg="gray.50" borderWidth="1px" borderRadius="lg" p={6} mt={6}>
-          <Heading as="h2" size="lg" mb={4}>
+          <Heading as="h2" size="lg" mb={6}>
             資格
           </Heading>
+          <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
+            資格は任意入力値です。<br></br>
+            資格追加がある場合は「追加」、追加を取り消す場合は「削除」をクリックしてください。
+          </Box>
           <VStack spacing={6} align="stretch">
             {certifications.map((cert, index) => (
               <Box key={index} mb={4}>
@@ -510,7 +584,7 @@ const EmployeeForm = () => {
                   <Flex align="center">
                     <Slider
                       flex="1"
-                      defaultValue={cert.level || 1}
+                      value={cert.level || 1}
                       min={1}
                       max={3}
                       step={1}
@@ -523,12 +597,12 @@ const EmployeeForm = () => {
                         height="10px"
                         borderRadius="5px"
                       >
-                        <Box position="relative" right={10} />
+                        {renderCertMarks()}
                         <SliderFilledTrack bg="blue.500" borderRadius="5px" />
                       </SliderTrack>
                       <SliderThumb boxSize={6}>
-                        <Text color="white" fontSize="xs">
-                          {cert.level || 1}
+                        <Text color="blue" fontSize="xs">
+                          {["初", "中", "高"][cert.level - 1] || "初"}
                         </Text>
                       </SliderThumb>
                     </Slider>
@@ -552,7 +626,7 @@ const EmployeeForm = () => {
               colorScheme="blue"
               onClick={() => setCertifications([...certifications, {}])}
             >
-              資格を追加
+              追加
             </Button>
           </VStack>
         </Box>
