@@ -552,7 +552,7 @@ const EmployeeForm = () => {
         </Box>
         <Box bg="white" borderWidth="1px" borderRadius="lg" p={6} mt={6}>
           <Heading as="h2" size="lg" mb={6}>
-            保有資格
+            認定資格
           </Heading>
           <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
             任意入力値です。<br></br>
