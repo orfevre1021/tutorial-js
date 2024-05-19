@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import Header from "../components/Header.jsx";
+import Header from "../../components/Header.jsx";
 import { Container, Box, Button, Text } from "@chakra-ui/react";
 
 const DeleteUser = () => {
