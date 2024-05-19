@@ -19,6 +19,13 @@ const EmployeeList = () => {
   const dropdownRef = useRef(null);
   const [showPopup, setShowPopup] = useState(false);
 
+  const positionOrder = {
+    課長: 0,
+    課長代理: 1,
+    主任: 2,
+    勤務: 3,
+  };
+
   const handleSort = (key) => {
     let direction = "ascending";
     if (sortConfig.key === key && sortConfig.direction === "ascending") {
@@ -31,11 +38,26 @@ const EmployeeList = () => {
     if (sortConfig.key) {
       const aValue = a[sortConfig.key].S || a[sortConfig.key].N;
       const bValue = b[sortConfig.key].S || b[sortConfig.key].N;
-      if (aValue < bValue) {
-        return sortConfig.direction === "ascending" ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === "ascending" ? 1 : -1;
+
+      if (sortConfig.key === "position") {
+        const aPosition =
+          positionOrder[aValue] !== undefined ? positionOrder[aValue] : 99;
+        const bPosition =
+          positionOrder[bValue] !== undefined ? positionOrder[bValue] : 99;
+
+        if (aPosition < bPosition) {
+          return sortConfig.direction === "ascending" ? -1 : 1;
+        }
+        if (aPosition > bPosition) {
+          return sortConfig.direction === "ascending" ? 1 : -1;
+        }
+      } else {
+        if (aValue < bValue) {
+          return sortConfig.direction === "ascending" ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === "ascending" ? 1 : -1;
+        }
       }
       return 0;
     }
@@ -193,7 +215,7 @@ const EmployeeList = () => {
                       >
                         <ul>
                           <li>
-                            <Link href={`/view/${item.employee_code.N}`}>
+                            <Link href={`/users/${item.employee_code.N}`}>
                               <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 閲覧
                               </div>

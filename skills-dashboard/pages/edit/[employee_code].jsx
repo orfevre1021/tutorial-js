@@ -1,18 +1,40 @@
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Header from "../../components/Header.jsx";
+import EmployeeForm from "../register.jsx";
+import { Container } from "@chakra-ui/react";
 
-export default function EditUser() {
+const EditUser = () => {
   const router = useRouter();
-  const { employee_code } = router.query;
+  const { id } = router.query;
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch(
+          `https://yurdpuchaa.execute-api.ap-northeast-1.amazonaws.com/dev3/users/${id}`
+        );
+        const data = await response.json();
+        setUser(data.Item);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    if (id) {
+      fetchUser();
+    }
+  }, [id]);
+
+  if (!user) return <p>Loading...</p>;
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      <Header title="ユーザ情報の編集" user="Tanaka" />
-
-      <div className="container mx-auto p-4">
-        <h1 className="text-lg font-bold">ユーザー {employee_code} を編集</h1>
-        {/* Form fields here */}
-      </div>
-    </div>
+    <Container maxW="container.md">
+      <Header user="Tanaka" />
+      <EmployeeForm user={user} isEdit={true} />
+    </Container>
   );
-}
+};
+
+export default EditUser;

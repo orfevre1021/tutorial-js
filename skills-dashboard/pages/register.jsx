@@ -191,7 +191,8 @@ const EmployeeForm = () => {
     if (!employee_code.match(/^\d{7}$/))
       newErrors.employee_code = "社員コードは7桁の数字でなければなりません";
     if (!user_name) newErrors.user_name = "氏名は必須です";
-    if (!email_address) newErrors.email_address = "メールアドレスは必須です";
+    if (!email_address.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/))
+      newErrors.email_address = "有効なメールアドレスを入力してください";
     if (!department) newErrors.department = "事業部は必須です";
     if (!division) newErrors.division = "担当は必須です";
     if (!position) newErrors.position = "役職は必須です";
@@ -340,7 +341,7 @@ const EmployeeForm = () => {
   };
 
   return (
-    <Container maxW="90%" p={4}>
+    <Container maxW="container.xl" p={4}>
       <form onSubmit={handleSubmit}>
         <Grid templateColumns="repeat(2, 1fr)" gap={6}>
           <Box bg="white" borderWidth="1px" borderRadius="lg" p={6}>
@@ -356,6 +357,8 @@ const EmployeeForm = () => {
                 <Input
                   type="text"
                   value={employee_code}
+                  borderColor="gray.200"
+                  borderWidth="2px"
                   onChange={(e) => {
                     setEmployeeCode(e.target.value);
                     setErrors({ ...errors, employee_code: "" });
@@ -372,6 +375,8 @@ const EmployeeForm = () => {
                 <Input
                   type="text"
                   value={user_name}
+                  borderColor="gray.200"
+                  borderWidth="2px"
                   onChange={(e) => {
                     setUserName(e.target.value);
                     setErrors({ ...errors, user_name: "" });
@@ -388,6 +393,8 @@ const EmployeeForm = () => {
                 <Input
                   type="email"
                   value={email_address}
+                  borderColor="gray.200"
+                  borderWidth="2px"
                   onChange={(e) => {
                     setEmailAddress(e.target.value);
                     setErrors({ ...errors, email_address: "" });
@@ -413,6 +420,8 @@ const EmployeeForm = () => {
                 <Text mb={2}>事業部</Text>
                 <Select
                   value={department}
+                  borderColor="gray.200"
+                  borderWidth="2px"
                   onChange={(e) => {
                     setDepartment(e.target.value);
                     setErrors({ ...errors, department: "" });
@@ -433,6 +442,8 @@ const EmployeeForm = () => {
                 <Text mb={2}>担当</Text>
                 <Select
                   value={division}
+                  borderColor="gray.200"
+                  borderWidth="2px"
                   onChange={(e) => {
                     setDivision(e.target.value);
                     setErrors({ ...errors, division: "" });
@@ -453,6 +464,8 @@ const EmployeeForm = () => {
                 <Text mb={2}>役職</Text>
                 <Select
                   value={position}
+                  borderColor="gray.200"
+                  borderWidth="2px"
                   onChange={(e) => {
                     setPosition(e.target.value);
                     setErrors({ ...errors, position: "" });
@@ -473,12 +486,13 @@ const EmployeeForm = () => {
             </VStack>
           </Box>
         </Grid>
-        <Box bg="gray.50" borderWidth="1px" borderRadius="lg" p={6} mt={6}>
+        <Box bg="white" borderWidth="1px" borderRadius="lg" p={6} mt={6}>
           <Heading as="h2" size="lg" mb={6}>
-            スキル
+            保有スキル
           </Heading>
           <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
-            任意入力値です。<br></br>スキルレベルのデフォルト値は0です。
+            任意入力値です。<br></br>
+            スキルレベルのデフォルト値は0で、0〜8を選択できます。
           </Box>
           <VStack spacing={6} align="stretch">
             {skillSections.map((section) => (
@@ -536,9 +550,9 @@ const EmployeeForm = () => {
             ))}
           </VStack>
         </Box>
-        <Box bg="gray.50" borderWidth="1px" borderRadius="lg" p={6} mt={6}>
+        <Box bg="white" borderWidth="1px" borderRadius="lg" p={6} mt={6}>
           <Heading as="h2" size="lg" mb={6}>
-            資格
+            保有資格
           </Heading>
           <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
             任意入力値です。<br></br>
@@ -552,6 +566,8 @@ const EmployeeForm = () => {
                   <Input
                     type="text"
                     value={cert.certification_name || ""}
+                    borderColor="gray.200"
+                    borderWidth="2px"
                     onChange={(e) =>
                       handleCertificationChange(
                         index,
@@ -581,6 +597,8 @@ const EmployeeForm = () => {
                   <Input
                     type="date"
                     value={cert.acquired_date || ""}
+                    borderColor="gray.200"
+                    borderWidth="2px"
                     onChange={(e) =>
                       handleCertificationChange(
                         index,
