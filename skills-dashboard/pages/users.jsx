@@ -6,7 +6,18 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Box, Button, Container, Flex, Grid, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Grid,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Text,
+} from "@chakra-ui/react";
+import { SearchIcon } from "@chakra-ui/icons";
 
 const EmployeeList = () => {
   const router = useRouter();
@@ -18,6 +29,7 @@ const EmployeeList = () => {
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const dropdownRef = useRef(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const positionOrder = {
     課長: 0,
@@ -64,18 +76,23 @@ const EmployeeList = () => {
     return employees;
   });
 
+  const filteredEmployees = sortedEmployees.filter((employee) => {
+    const userName = employee.user_name.S.toLowerCase();
+    const employeeCode = employee.employee_code.N.toString();
+    const query = searchQuery.toLowerCase();
+    return userName.includes(query) || employeeCode.includes(query);
+  });
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(null); // メニュー外のクリックでドロップダウンを閉じる
+        setDropdownOpen(null);
       }
     };
 
-    // ブラウザのクリックイベントを監視
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      // コンポーネントのアンマウント時にイベントリスナーを削除
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
@@ -88,14 +105,12 @@ const EmployeeList = () => {
         );
         const data = await response.json();
 
-        // updated_date.S を文字列として比較して昇順にソート
         const sortedData = data.Items.sort(
           (a, b) => new Date(b.updated_date.S) - new Date(a.updated_date.S)
         );
 
         setEmployees(sortedData);
 
-        // 新規ユーザー登録後のポップアップ表示
         const params = new URLSearchParams(window.location.search);
         if (params.get("newUser") === "true") {
           const userName = params.get("userName");
@@ -125,17 +140,42 @@ const EmployeeList = () => {
       <div className="bg-gray-100 min-h-screen">
         <Header user="Tanaka" />
         <div className="p-4">
-          <Button
-            colorScheme="blue"
+          <Flex
             mb={4}
-            onClick={() => router.push("/register")}
+            direction={{ base: "column", md: "row" }}
+            justifyContent="space-between"
+            alignItems={{ base: "flex-start", md: "center" }}
+            gap={4}
           >
-            ユーザー追加
-          </Button>
+            <InputGroup flex="9">
+              <InputLeftElement pointerEvents="none">
+                <SearchIcon color="gray.300" />
+              </InputLeftElement>
+              <Input
+                placeholder="氏名または氏名コードで検索"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                bg="white"
+                borderRadius="md"
+                boxShadow="sm"
+                _hover={{ boxShadow: "md" }}
+                _focus={{ boxShadow: "outline" }}
+              />
+            </InputGroup>
+            <Button
+              colorScheme="blue"
+              onClick={() => router.push("/register")}
+              flex="2"
+              whiteSpace="normal"
+              wordWrap="break-word"
+            >
+              ユーザー追加
+            </Button>
+          </Flex>
           <div className="w-full m-auto p-4 border rounded-lg bg-white overflow-y-auto">
             <div className="my-3 p-2 grid md:grid-cols-6 sm:grid-cols-3 grid-cols-2 items-center justify-between cursor-pointer">
               <div
-                className=" flex items-center"
+                className="flex items-center"
                 onClick={() => handleSort("user_name")}
               >
                 氏名
@@ -183,7 +223,7 @@ const EmployeeList = () => {
               </div>
             </div>
             <ul>
-              {sortedEmployees.map((item, index) => (
+              {filteredEmployees.map((item, index) => (
                 <li
                   key={index}
                   className="bg-gray-50 hover:bg-gray-100 rounded-lg my-3 p-2 grid md:grid-cols-6 sm:grid-cols-3 grid-cols-2 items-center justify-between cursor-pointer"

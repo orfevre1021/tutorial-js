@@ -8,6 +8,9 @@ import {
   Text,
   VStack,
   SimpleGrid,
+  Button,
+  Flex,
+  Spacer,
 } from "@chakra-ui/react";
 
 import {
@@ -80,6 +83,37 @@ const ViewUser = () => {
     "第一人者（エグゼ）",
   ];
 
+  const handleEditUser = () => {
+    router.push(`/edit/user/${employee_code}`);
+  };
+
+  const handleEditCertifications = () => {
+    router.push(`/edit/certifications/${employee_code}`);
+  };
+
+  const handleEditSkills = () => {
+    router.push(`/edit/skills/${employee_code}`);
+  };
+
+  const handleDeleteUser = async () => {
+    try {
+      const response = await fetch(
+        `https://yurdpuchaa.execute-api.ap-northeast-1.amazonaws.com/dev8/users/${employee_code}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        router.push("/");
+      } else {
+        console.error("Failed to delete user");
+      }
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+    }
+  };
+
   if (!user)
     return (
       <h1 className="text-lg font-bold">
@@ -89,13 +123,24 @@ const ViewUser = () => {
 
   return (
     <Container maxW="container.xl" p={4}>
-      <Header user="Tanaka" />
+      <Flex mb={4}>
+        <Header user="Tanaka" />
+        <Spacer />
+        <Button colorScheme="red" onClick={handleDeleteUser} width="100px">
+          削除
+        </Button>
+      </Flex>
       <SimpleGrid columns={2} spacing={10}>
         <Box bg="white" p={6} rounded="md" shadow="md">
-          <VStack spacing={4} align="start">
-            <Heading as="h2" size="lg" mb={6}>
+          <Flex justify="space-between" align="center">
+            <Heading as="h2" size="lg">
               ユーザー情報
             </Heading>
+            <Button colorScheme="blue" onClick={handleEditUser}>
+              編集
+            </Button>
+          </Flex>
+          <VStack spacing={4} align="start" mt={6}>
             <Text>氏名: {user.user_name}</Text>
             <Text>社員コード: {user.employee_code}</Text>
             <Text>メールアドレス: {user.email_address}</Text>
@@ -106,17 +151,22 @@ const ViewUser = () => {
           </VStack>
         </Box>
         <Box bg="white" p={6} rounded="md" shadow="md">
-          <VStack spacing={4} align="start">
-            <Heading as="h2" size="lg" mb={6}>
+          <Flex justify="space-between" align="center">
+            <Heading as="h2" size="lg">
               認定資格
             </Heading>
+            <Button colorScheme="blue" onClick={handleEditCertifications}>
+              編集
+            </Button>
+          </Flex>
+          <VStack spacing={4} align="start" mt={6}>
             {user.certifications && user.certifications.length > 0 ? (
               user.certifications.map((cert, index) => (
-                <Box key={index} mb={2}>
-                  <Text>資格名: {cert.certification_name}</Text>
-                  <Text>ベンダー: {cert.vender}</Text>
-                  <Text>レベル: {cert.level}</Text>
-                  <Text>取得日: {cert.acquired_date}</Text>
+                <Box key={index} mb={4}>
+                  <Text mb={3.5}>資格名: {cert.certification_name}</Text>
+                  <Text mb={3.5}>ベンダー: {cert.vender}</Text>
+                  <Text mb={3.5}>レベル: {cert.level}</Text>
+                  <Text mb={3.5}>取得日: {cert.acquired_date}</Text>
                 </Box>
               ))
             ) : (
@@ -126,13 +176,18 @@ const ViewUser = () => {
         </Box>
       </SimpleGrid>
       <Box bg="white" p={6} rounded="md" shadow="md" mt={10} width="100%">
-        <VStack spacing={10} align="start">
-          <Heading as="h2" size="lg" mb={6}>
+        <Flex justify="space-between" align="center">
+          <Heading as="h2" size="lg">
             保有スキル
           </Heading>
+          <Button colorScheme="blue" onClick={handleEditSkills}>
+            編集
+          </Button>
+        </Flex>
+        <VStack spacing={10} align="start" mt={6}>
           {Object.keys(chartData).map((section) => (
             <Box key={section} mb={8} width="100%" mx="auto">
-              <Heading as="h3" size="md" mb={16} borderBottom="2px solid black">
+              <Heading as="h3" size="md" mb={4} borderBottom="2px solid black">
                 {section}
               </Heading>
               <Box width="80%" height="15cm" mx="auto">
