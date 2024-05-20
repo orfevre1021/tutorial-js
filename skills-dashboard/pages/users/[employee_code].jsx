@@ -172,7 +172,7 @@ const ViewUser = () => {
           </Flex>
           <VStack spacing={4} align="start" mt={6}>
             <Text>氏名: {user.user_name}</Text>
-            <Text>社員コード: {user.employee_code}</Text>
+            <Text>氏名コード: {user.employee_code}</Text>
             <Text>メールアドレス: {user.email_address}</Text>
             <Text>事業部: {user.department}</Text>
             <Text>担当: {user.division}</Text>

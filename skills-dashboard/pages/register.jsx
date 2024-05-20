@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -149,6 +149,14 @@ const EmployeeForm = () => {
   const [certifications, setCertifications] = useState([]);
   const [errors, setErrors] = useState({});
 
+  const employeeCodeRef = useRef(null);
+  const userNameRef = useRef(null);
+  const emailAddressRef = useRef(null);
+  const departmentRef = useRef(null);
+  const divisionRef = useRef(null);
+  const positionRef = useRef(null);
+  const certificationsContainerRef = useRef(null);
+
   const handleCertificationChange = (index, field, value) => {
     const updatedCertifications = certifications.map((cert, i) => {
       if (i === index) {
@@ -188,7 +196,7 @@ const EmployeeForm = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!employee_code.match(/^\d{7}$/))
-      newErrors.employee_code = "社員コードは7桁の数字でなければなりません";
+      newErrors.employee_code = "氏名コードは7桁の数字でなければなりません";
     if (!user_name) newErrors.user_name = "氏名は必須です";
     if (!email_address.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/))
       newErrors.email_address = "有効なメールアドレスを入力してください";
@@ -215,6 +223,35 @@ const EmployeeForm = () => {
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
+
+      const errorFields = [
+        { ref: employeeCodeRef, field: "employee_code" },
+        { ref: userNameRef, field: "user_name" },
+        { ref: emailAddressRef, field: "email_address" },
+        { ref: departmentRef, field: "department" },
+        { ref: divisionRef, field: "division" },
+        { ref: positionRef, field: "position" },
+      ];
+
+      for (const field of errorFields) {
+        if (formErrors[field.field]) {
+          field.ref.current.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+          return;
+        }
+      }
+
+      if (
+        Object.keys(formErrors).some((key) => key.startsWith("certifications"))
+      ) {
+        certificationsContainerRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+
       return;
     }
 
@@ -343,7 +380,13 @@ const EmployeeForm = () => {
     <Container maxW="container.xl" p={4}>
       <form onSubmit={handleSubmit}>
         <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-          <Box bg="white" borderWidth="1px" borderRadius="lg" p={6}>
+          <Box
+            ref={employeeCodeRef}
+            bg="white"
+            borderWidth="1px"
+            borderRadius="lg"
+            p={6}
+          >
             <Heading as="h2" size="lg" mb={6}>
               基本情報
             </Heading>
@@ -352,7 +395,7 @@ const EmployeeForm = () => {
             </Box>
             <VStack spacing={6} align="stretch">
               <Box>
-                <Text mb={2}>社員コード（数字7桁）</Text>
+                <Text mb={2}>氏名コード（数字7桁）</Text>
                 <Input
                   type="text"
                   value={employee_code}
@@ -369,7 +412,7 @@ const EmployeeForm = () => {
                   </Text>
                 )}
               </Box>
-              <Box>
+              <Box ref={userNameRef}>
                 <Text mb={2}>氏名</Text>
                 <Input
                   type="text"
@@ -387,7 +430,7 @@ const EmployeeForm = () => {
                   </Text>
                 )}
               </Box>
-              <Box>
+              <Box ref={emailAddressRef}>
                 <Text mb={2}>メールアドレス</Text>
                 <Input
                   type="email"
@@ -407,7 +450,13 @@ const EmployeeForm = () => {
               </Box>
             </VStack>
           </Box>
-          <Box bg="white" borderWidth="1px" borderRadius="lg" p={6}>
+          <Box
+            ref={departmentRef}
+            bg="white"
+            borderWidth="1px"
+            borderRadius="lg"
+            p={6}
+          >
             <Heading as="h2" size="lg" mb={6}>
               所属情報
             </Heading>
@@ -437,7 +486,7 @@ const EmployeeForm = () => {
                   </Text>
                 )}
               </Box>
-              <Box>
+              <Box ref={divisionRef}>
                 <Text mb={2}>担当</Text>
                 <Select
                   value={division}
@@ -459,7 +508,7 @@ const EmployeeForm = () => {
                   </Text>
                 )}
               </Box>
-              <Box>
+              <Box ref={positionRef}>
                 <Text mb={2}>役職</Text>
                 <Select
                   value={position}
@@ -549,7 +598,14 @@ const EmployeeForm = () => {
             ))}
           </VStack>
         </Box>
-        <Box bg="white" borderWidth="1px" borderRadius="lg" p={6} mt={6}>
+        <Box
+          ref={certificationsContainerRef}
+          bg="white"
+          borderWidth="1px"
+          borderRadius="lg"
+          p={6}
+          mt={6}
+        >
           <Heading as="h2" size="lg" mb={6}>
             認定資格
           </Heading>
