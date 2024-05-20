@@ -187,7 +187,7 @@ const ViewUser = () => {
         <VStack spacing={10} align="start" mt={6}>
           {Object.keys(chartData).map((section) => (
             <Box key={section} mb={8} width="100%" mx="auto">
-              <Heading as="h3" size="md" mb={4} borderBottom="2px solid black">
+              <Heading as="h3" size="md" mb={14} borderBottom="2px solid black">
                 {section}
               </Heading>
               <Box width="80%" height="15cm" mx="auto">

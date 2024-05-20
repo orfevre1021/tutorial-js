@@ -80,7 +80,7 @@ const EmployeeList = () => {
     const userName = employee.user_name.S.toLowerCase();
     const employeeCode = employee.employee_code.N.toString();
     const query = searchQuery.toLowerCase();
-    return userName.includes(query) || employeeCode.includes(query);
+    return userName.startsWith(query) || employeeCode.startsWith(query);
   });
 
   useEffect(() => {
@@ -136,6 +136,29 @@ const EmployeeList = () => {
 
   return (
     <Container maxW="container.xl">
+      <style jsx>{`
+        .fixed-width {
+          width: 3.5rem;
+        }
+        .flex-grow {
+          flex: 1;
+        }
+        .grid-container {
+          display: grid;
+          grid-template-columns: 3.5rem repeat(6, 1fr) 3.5rem;
+        }
+        .grid-item {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .grid-header {
+          cursor: pointer;
+        }
+        .border-right {
+          border-right: 1px solid #e2e8f0;
+        }
+      `}</style>
       <ToastContainer />
       <div className="bg-gray-100 min-h-screen">
         <Header user="Tanaka" />
@@ -173,17 +196,11 @@ const EmployeeList = () => {
             </Button>
           </Flex>
           <div className="w-full m-auto p-4 border rounded-lg bg-white overflow-y-auto">
-            <div className="my-3 p-2 grid md:grid-cols-6 sm:grid-cols-3 grid-cols-2 items-center justify-between cursor-pointer">
-              <div
-                className="flex items-center"
-                onClick={() => handleSort("user_name")}
-              >
-                氏名
-                <FaSort className="ml-2" />
-              </div>
+            <div className="my-3 p-2 grid-container items-center justify-between cursor-pointer border-b border-gray-200">
+              <div className="fixed-width"></div>
 
               <div
-                className="flex items-center"
+                className="flex-grow grid-item border-right grid-header"
                 onClick={() => handleSort("employee_code")}
               >
                 氏名コード
@@ -191,7 +208,15 @@ const EmployeeList = () => {
               </div>
 
               <div
-                className="flex items-center"
+                className="flex-grow grid-item border-right grid-header"
+                onClick={() => handleSort("user_name")}
+              >
+                氏名
+                <FaSort className="ml-2" />
+              </div>
+
+              <div
+                className="flex-grow grid-item border-right grid-header"
                 onClick={() => handleSort("department")}
               >
                 事業部
@@ -199,7 +224,7 @@ const EmployeeList = () => {
               </div>
 
               <div
-                className="flex items-center"
+                className="flex-grow grid-item border-right grid-header"
                 onClick={() => handleSort("division")}
               >
                 担当
@@ -207,7 +232,7 @@ const EmployeeList = () => {
               </div>
 
               <div
-                className="flex items-center"
+                className="flex-grow grid-item border-right grid-header"
                 onClick={() => handleSort("position")}
               >
                 役職
@@ -215,36 +240,50 @@ const EmployeeList = () => {
               </div>
 
               <div
-                className="flex items-center"
+                className="flex-grow grid-item border-right grid-header"
                 onClick={() => handleSort("updated_date")}
               >
                 最新更新
                 <FaSort className="ml-2" />
               </div>
+
+              <div className="fixed-width"></div>
             </div>
             <ul>
               {filteredEmployees.map((item, index) => (
                 <li
                   key={index}
-                  className="bg-gray-50 hover:bg-gray-100 rounded-lg my-3 p-2 grid md:grid-cols-6 sm:grid-cols-3 grid-cols-2 items-center justify-between cursor-pointer"
+                  className="bg-gray-50 hover:bg-gray-100 rounded-lg my-3 p-2 grid-container items-center justify-between cursor-pointer border-b border-gray-200"
                 >
-                  <div className="flex items-center">
+                  <div className="fixed-width grid-item">
                     <div className="bg-blue-100 p-3 rounded-lg">
                       <BsPersonFill className="text-blue-800" />
                     </div>
-                    <div className="pl-4">
-                      <p>{item.user_name.S}</p>
-                    </div>
                   </div>
 
-                  <p className="hidden md:flex">{item.employee_code.N}</p>
+                  <div className="flex-grow grid-item border-right">
+                    <p>{item.employee_code.N}</p>
+                  </div>
 
-                  <p className="hidden md:flex">{item.department.S}</p>
-                  <p className="hidden md:flex">{item.division.S}</p>
-                  <p className="sm:text-left text-right">{item.position.S}</p>
+                  <p className="hidden md:flex flex-grow grid-item border-right">
+                    {item.user_name.S}
+                  </p>
 
-                  <div className="sm:flex hidden justify-between items-center">
-                    <p>{item.updated_date.S}</p>
+                  <p className="hidden md:flex flex-grow grid-item border-right">
+                    {item.department.S}
+                  </p>
+                  <p className="hidden md:flex flex-grow grid-item border-right">
+                    {item.division.S}
+                  </p>
+                  <p className="flex-grow grid-item border-right">
+                    {item.position.S}
+                  </p>
+
+                  <p className="flex-grow grid-item border-right">
+                    {item.updated_date.S}
+                  </p>
+
+                  <div className="fixed-width grid-item">
                     <BsThreeDotsVertical
                       onClick={() => setDropdownOpen(item.employee_code.N)}
                     />

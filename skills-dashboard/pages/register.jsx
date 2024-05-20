@@ -349,7 +349,7 @@ const EmployeeForm = () => {
               基本情報
             </Heading>
             <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
-              必須入力値です。
+              必須入力値です。氏名コードと氏名は後から変更できません。
             </Box>
             <VStack spacing={6} align="stretch">
               <Box>
