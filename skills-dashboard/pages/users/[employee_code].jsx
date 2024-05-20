@@ -19,20 +19,23 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
-  PointElement,
   LineElement,
+  PointElement,
+  LineController,
   Title,
   Tooltip,
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
+// LineControllerを登録
 ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
-  PointElement,
   LineElement,
+  PointElement,
+  LineController,
   Title,
   Tooltip,
   Legend
