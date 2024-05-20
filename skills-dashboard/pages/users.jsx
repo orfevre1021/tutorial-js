@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { BsPersonFill, BsThreeDotsVertical } from "react-icons/bs";
+import { BsPersonFill } from "react-icons/bs";
 import { FaSort } from "react-icons/fa";
 import Header from "../components/Header.jsx";
 import Link from "next/link";
@@ -25,8 +25,6 @@ const EmployeeList = () => {
     key: null,
     direction: "ascending",
   });
-  const [dropdownOpen, setDropdownOpen] = useState(null);
-  const dropdownRef = useRef(null);
   const [showPopup, setShowPopup] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -83,20 +81,6 @@ const EmployeeList = () => {
   });
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
     const fetchEmployees = async () => {
       try {
         const response = await fetch(
@@ -128,10 +112,12 @@ const EmployeeList = () => {
 
         // Check for deleteSuccess query parameter
         if (params.get("deleteSuccess") === "true") {
+          const userName = params.get("userName");
           if (!showPopup) {
-            toast.success("ユーザーが正常に削除されました！");
+            toast.success(`ユーザー ${userName} が正常に削除されました！`);
             setShowPopup(true);
             params.delete("deleteSuccess");
+            params.delete("userName");
             router.replace(
               { pathname: router.pathname, query: params.toString() },
               undefined,
@@ -170,6 +156,9 @@ const EmployeeList = () => {
         }
         .border-right {
           border-right: 1px solid #e2e8f0;
+        }
+        .no-border-right {
+          border-right: none;
         }
       `}</style>
       <ToastContainer />
@@ -253,7 +242,7 @@ const EmployeeList = () => {
               </div>
 
               <div
-                className="flex-grow grid-item border-right grid-header"
+                className="flex-grow grid-item no-border-right grid-header"
                 onClick={() => handleSort("updated_date")}
               >
                 最新更新
@@ -292,44 +281,17 @@ const EmployeeList = () => {
                     {item.position.S}
                   </p>
 
-                  <p className="flex-grow grid-item border-right">
+                  <p className="flex-grow grid-item no-border-right">
                     {item.updated_date.S}
                   </p>
 
                   <div className="fixed-width grid-item">
-                    <BsThreeDotsVertical
-                      onClick={() => setDropdownOpen(item.employee_code.N)}
-                    />
-                    {dropdownOpen === item.employee_code.N && (
-                      <div
-                        ref={dropdownRef}
-                        className="absolute mt-12 right-0 bg-white shadow-lg ring-1 ring-black ring-opacity-5"
-                      >
-                        <ul>
-                          <li>
-                            <Link href={`/users/${item.employee_code.N}`}>
-                              <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                閲覧
-                              </div>
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href={`/edit/${item.employee_code.N}`}>
-                              <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                編集
-                              </div>
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href={`/delete/${item.employee_code.N}`}>
-                              <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                削除
-                              </div>
-                            </Link>
-                          </li>
-                        </ul>
-                      </div>
-                    )}
+                    <Link
+                      href={`/users/${item.employee_code.N}`}
+                      legacyBehavior
+                    >
+                      <a className="text-blue-600 hover:underline">詳細</a>
+                    </Link>
                   </div>
                 </li>
               ))}

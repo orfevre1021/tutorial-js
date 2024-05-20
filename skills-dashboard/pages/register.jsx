@@ -178,7 +178,6 @@ const EmployeeForm = () => {
   const handleCertificationDelete = (index) => {
     const updatedCertifications = certifications.filter((_, i) => i !== index);
 
-    // Remove the error associated with the deleted certification
     const updatedErrors = { ...errors };
     delete updatedErrors[`certifications[${index}]`];
 

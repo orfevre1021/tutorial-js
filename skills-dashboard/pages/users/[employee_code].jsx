@@ -98,7 +98,10 @@ const ViewUser = () => {
   };
 
   const handleDeleteUser = async () => {
-    const confirmDelete = confirm("本当にこのユーザーを削除しますか？");
+    if (!user) return;
+    const confirmDelete = confirm(
+      `本当にユーザー「${user.user_name}」を削除しますか？`
+    );
 
     if (confirmDelete) {
       try {
@@ -118,7 +121,7 @@ const ViewUser = () => {
         if (response.ok) {
           router.push({
             pathname: "/users",
-            query: { deleteSuccess: true },
+            query: { deleteSuccess: true, userName: user.user_name },
           });
         } else {
           toast({
