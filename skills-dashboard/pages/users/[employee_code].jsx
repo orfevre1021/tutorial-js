@@ -19,6 +19,8 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
@@ -29,6 +31,8 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend
@@ -39,6 +43,7 @@ const ViewUser = () => {
   const { employee_code } = router.query;
   const [user, setUser] = useState(null);
   const [chartData, setChartData] = useState({});
+  const [averageData, setAverageData] = useState({});
   const toast = useToast();
 
   useEffect(() => {
@@ -62,6 +67,26 @@ const ViewUser = () => {
             return acc;
           }, {});
           setChartData(transformedData);
+
+          // 平均スキルレベルを取得
+          const position = data.position;
+          const avgResponse = await fetch(
+            `https://yurdpuchaa.execute-api.ap-northeast-1.amazonaws.com/dev10/average?position=${position}`
+          );
+          const avgData = await avgResponse.json();
+          const avgTransformedData = avgData.Items[0].skills.L.reduce(
+            (acc, skill) => {
+              const section = skill.M.section.S;
+              if (!acc[section]) acc[section] = [];
+              acc[section].push({
+                skill_name: skill.M.skill_name.S,
+                average_level: parseInt(skill.M.average_level.N),
+              });
+              return acc;
+            },
+            {}
+          );
+          setAverageData(avgTransformedData);
         }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
@@ -226,11 +251,29 @@ const ViewUser = () => {
                     labels: chartData[section].map((skill) => skill.skill_name),
                     datasets: [
                       {
-                        label: "スキルレベル",
+                        type: "bar",
+                        label: "自分のスキルレベル",
                         data: chartData[section].map((skill) => skill.level),
-                        backgroundColor: "rgba(75, 192, 192, 0.6)",
-                        borderColor: "rgba(75, 192, 192, 1)",
+                        backgroundColor: "rgba(255, 99, 132, 0.6)",
+                        borderColor: "rgba(255, 99, 132, 1)",
                         borderWidth: 1,
+                        barThickness: 40, // ここでバーの太さを指定
+                        categoryPercentage: 0.8, // カテゴリー全体の幅の割合を指定
+                        barPercentage: 0.8, // 各バーの幅の割合を指定
+                      },
+                      {
+                        type: "bar",
+                        label: "同じ役職の平均スキルレベル",
+                        data:
+                          averageData[section]?.map(
+                            (skill) => skill.average_level
+                          ) || [],
+                        backgroundColor: "rgba(54, 162, 235, 0.6)",
+                        borderColor: "rgba(54, 162, 235, 1)",
+                        borderWidth: 1,
+                        barThickness: 40, // ここでバーの太さを指定
+                        categoryPercentage: 0.8, // カテゴリー全体の幅の割合を指定
+                        barPercentage: 0.8, // 各バーの幅の割合を指定
                       },
                     ],
                   }}
@@ -239,7 +282,7 @@ const ViewUser = () => {
                     maintainAspectRatio: false,
                     plugins: {
                       legend: {
-                        display: false,
+                        display: true,
                       },
                       title: {
                         display: false,
