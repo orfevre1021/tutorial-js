@@ -257,23 +257,20 @@ const ViewUser = () => {
                         backgroundColor: "rgba(255, 99, 132, 0.6)",
                         borderColor: "rgba(255, 99, 132, 1)",
                         borderWidth: 1,
-                        barThickness: 40, // ここでバーの太さを指定
+                        barThickness: 60, // ここでバーの太さを指定
                         categoryPercentage: 0.8, // カテゴリー全体の幅の割合を指定
                         barPercentage: 0.8, // 各バーの幅の割合を指定
                       },
                       {
-                        type: "bar",
+                        type: "line",
                         label: "同じ役職の平均スキルレベル",
                         data:
                           averageData[section]?.map(
                             (skill) => skill.average_level
                           ) || [],
-                        backgroundColor: "rgba(54, 162, 235, 0.6)",
                         borderColor: "rgba(54, 162, 235, 1)",
-                        borderWidth: 1,
-                        barThickness: 40, // ここでバーの太さを指定
-                        categoryPercentage: 0.8, // カテゴリー全体の幅の割合を指定
-                        barPercentage: 0.8, // 各バーの幅の割合を指定
+                        borderWidth: 2,
+                        fill: false,
                       },
                     ],
                   }}
