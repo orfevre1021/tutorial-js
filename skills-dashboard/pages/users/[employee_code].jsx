@@ -268,6 +268,7 @@ const ViewUser = () => {
                           averageData[section]?.map(
                             (skill) => skill.average_level
                           ) || [],
+                        backgroundColor: "rgba(54, 162, 235, 1)",
                         borderColor: "rgba(54, 162, 235, 1)",
                         borderWidth: 2,
                         fill: false,
