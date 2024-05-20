@@ -11,6 +11,7 @@ import {
   Button,
   Flex,
   Spacer,
+  useToast,
 } from "@chakra-ui/react";
 
 import {
@@ -38,6 +39,7 @@ const ViewUser = () => {
   const { employee_code } = router.query;
   const [user, setUser] = useState(null);
   const [chartData, setChartData] = useState({});
+  const toast = useToast();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -96,21 +98,46 @@ const ViewUser = () => {
   };
 
   const handleDeleteUser = async () => {
-    try {
-      const response = await fetch(
-        `https://yurdpuchaa.execute-api.ap-northeast-1.amazonaws.com/dev8/users/${employee_code}`,
-        {
-          method: "DELETE",
-        }
-      );
+    const confirmDelete = confirm("本当にこのユーザーを削除しますか？");
 
-      if (response.ok) {
-        router.push("/");
-      } else {
-        console.error("Failed to delete user");
+    if (confirmDelete) {
+      try {
+        const response = await fetch(
+          "https://yurdpuchaa.execute-api.ap-northeast-1.amazonaws.com/dev9/delete",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              employee_code: employee_code,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          router.push({
+            pathname: "/users",
+            query: { deleteSuccess: true },
+          });
+        } else {
+          toast({
+            title: "ユーザーの削除に失敗しました。",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+          console.error("Failed to delete user");
+        }
+      } catch (error) {
+        toast({
+          title: "ユーザーの削除中にエラーが発生しました。",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        console.error("Failed to delete user:", error);
       }
-    } catch (error) {
-      console.error("Failed to delete user:", error);
     }
   };
 

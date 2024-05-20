@@ -11,7 +11,6 @@ import {
   Button,
   Container,
   Flex,
-  Grid,
   Input,
   InputGroup,
   InputLeftElement,
@@ -119,6 +118,20 @@ const EmployeeList = () => {
             setShowPopup(true);
             params.delete("newUser");
             params.delete("userName");
+            router.replace(
+              { pathname: router.pathname, query: params.toString() },
+              undefined,
+              { shallow: true }
+            );
+          }
+        }
+
+        // Check for deleteSuccess query parameter
+        if (params.get("deleteSuccess") === "true") {
+          if (!showPopup) {
+            toast.success("ユーザーが正常に削除されました！");
+            setShowPopup(true);
+            params.delete("deleteSuccess");
             router.replace(
               { pathname: router.pathname, query: params.toString() },
               undefined,
