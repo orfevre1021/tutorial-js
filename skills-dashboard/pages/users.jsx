@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { BsPersonFill } from "react-icons/bs";
 import { FaSort } from "react-icons/fa";
 import Header from "../components/Header.jsx";
@@ -177,7 +177,7 @@ const EmployeeList = () => {
                 <SearchIcon color="gray.300" />
               </InputLeftElement>
               <Input
-                placeholder="氏名または氏名コードで検索"
+                placeholder="氏名コードまたは氏名で検索"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 bg="white"
@@ -192,7 +192,7 @@ const EmployeeList = () => {
               onClick={() => router.push("/register")}
               flex="2"
               whiteSpace="normal"
-              wordWrap="break-word"
+              overflowWrap="break-word"
             >
               ユーザー追加
             </Button>
