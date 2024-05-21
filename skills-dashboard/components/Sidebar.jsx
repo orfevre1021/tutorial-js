@@ -53,21 +53,27 @@ const Sidebar = ({ children }) => {
             </div>
 
             <nav className="flex flex-col space-y-4 flex-1">
-              <Link href="/overview">
+              <Link href="/dashboard">
                 <div
                   className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
-                    currentRoute === "/overview" ? "bg-blue-500" : "bg-blue-700"
+                    currentRoute === "/dashboard"
+                      ? "bg-blue-500"
+                      : "bg-blue-700"
                   }`}
                 >
                   <RxDashboard size={24} />
-                  <span className={`${showText ? "block" : "hidden"} text-lg`}>
+                  <span
+                    className={`${
+                      showText ? "block" : "hidden"
+                    } font-bold text-lg`}
+                  >
                     ダッシュボード
                   </span>
                 </div>
               </Link>
               <Link href="/users">
                 <div
-                  className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
+                  className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer font-bold hover:bg-blue-300 ${
                     currentRoute === "/users" ? "bg-blue-500" : "bg-blue-700"
                   }`}
                 >
@@ -79,7 +85,7 @@ const Sidebar = ({ children }) => {
               </Link>
               <Link href="/settings">
                 <div
-                  className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
+                  className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer font-bold hover:bg-blue-300 ${
                     currentRoute === "/settings" ? "bg-blue-500" : "bg-blue-700"
                   }`}
                 >
@@ -91,7 +97,7 @@ const Sidebar = ({ children }) => {
               </Link>
               <Link href="/signout">
                 <div
-                  className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
+                  className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer font-bold  hover:bg-blue-300 ${
                     currentRoute === "/signout" ? "bg-blue-500" : "bg-blue-700"
                   }`}
                 >
