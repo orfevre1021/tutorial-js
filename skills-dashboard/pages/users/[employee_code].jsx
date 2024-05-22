@@ -11,7 +11,14 @@ import {
   Button,
   Flex,
   Spacer,
+  Select,
   useToast,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
 } from "@chakra-ui/react";
 
 import {
@@ -28,7 +35,7 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-// LineControllerを登録
+// Register LineController
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -47,6 +54,9 @@ const ViewUser = () => {
   const [user, setUser] = useState(null);
   const [chartData, setChartData] = useState({});
   const [averageData, setAverageData] = useState({});
+  const [filteredCertifications, setFilteredCertifications] = useState([]);
+  const [vendorFilter, setVendorFilter] = useState("");
+  const [levelFilter, setLevelFilter] = useState("");
   const toast = useToast();
 
   useEffect(() => {
@@ -57,6 +67,7 @@ const ViewUser = () => {
         );
         const data = await response.json();
         setUser(data);
+        setFilteredCertifications([]);
         console.log(data);
 
         if (data.skills && Array.isArray(data.skills)) {
@@ -65,13 +76,13 @@ const ViewUser = () => {
             if (!acc[section]) acc[section] = [];
             acc[section].push({
               skill_name: skill.skill_name,
-              level: parseInt(skill.level),
+              level: parseFloat(skill.level),
             });
             return acc;
           }, {});
           setChartData(transformedData);
 
-          // 平均スキルレベルを取得
+          // Fetch average skill levels
           const position = data.position;
           const avgResponse = await fetch(
             `https://yurdpuchaa.execute-api.ap-northeast-1.amazonaws.com/dev10/average?position=${position}`
@@ -83,7 +94,7 @@ const ViewUser = () => {
               if (!acc[section]) acc[section] = [];
               acc[section].push({
                 skill_name: skill.M.skill_name.S,
-                average_level: parseInt(skill.M.average_level.N),
+                average_level: parseFloat(skill.M.average_level.N),
               });
               return acc;
             },
@@ -100,6 +111,21 @@ const ViewUser = () => {
       fetchUser();
     }
   }, [employee_code]);
+
+  useEffect(() => {
+    if (user) {
+      let filtered = user.certifications || [];
+      if (vendorFilter) {
+        filtered = filtered.filter((cert) => cert.vender === vendorFilter);
+      }
+      if (levelFilter) {
+        filtered = filtered.filter(
+          (cert) => parseInt(cert.level) === parseInt(levelFilter)
+        );
+      }
+      setFilteredCertifications(filtered);
+    }
+  }, [vendorFilter, levelFilter, user]);
 
   const skillLevels = [
     "経験なし",
@@ -199,8 +225,8 @@ const ViewUser = () => {
             </Button>
           </Flex>
           <VStack spacing={4} align="start" mt={6}>
-            <Text>氏名: {user.user_name}</Text>
             <Text>氏名コード: {user.employee_code}</Text>
+            <Text>氏名: {user.user_name}</Text>
             <Text>メールアドレス: {user.email_address}</Text>
             <Text>事業部: {user.department}</Text>
             <Text>担当: {user.division}</Text>
@@ -217,20 +243,53 @@ const ViewUser = () => {
               編集
             </Button>
           </Flex>
-          <VStack spacing={4} align="start" mt={6}>
-            {user.certifications && user.certifications.length > 0 ? (
-              user.certifications.map((cert, index) => (
-                <Box key={index} mb={4}>
-                  <Text mb={3.5}>資格名: {cert.certification_name}</Text>
-                  <Text mb={3.5}>ベンダー: {cert.vender}</Text>
-                  <Text mb={3.5}>レベル: {cert.level}</Text>
-                  <Text mb={3.5}>取得日: {cert.acquired_date}</Text>
-                </Box>
-              ))
-            ) : (
-              <Text>認定資格なし</Text>
-            )}
-          </VStack>
+          <Box mb={4}>
+            <Text mb={2}>ベンダーでフィルター:</Text>
+            <Select
+              placeholder="プルダウンから選択"
+              onChange={(e) => setVendorFilter(e.target.value)}
+            >
+              <option value="">すべてのベンダー</option>
+              <option value="AWS">AWS</option>
+              <option value="Azure">Azure</option>
+              <option value="GCP">GCP</option>
+              <option value="Other">Other</option>
+            </Select>
+          </Box>
+          <Box mb={4}>
+            <Text mb={2}>資格レベルでフィルター:</Text>
+            <Select
+              placeholder="プルダウンから選択"
+              onChange={(e) => setLevelFilter(e.target.value)}
+            >
+              <option value="">すべてのレベル</option>
+              <option value="1">初級</option>
+              <option value="2">中級</option>
+              <option value="3">上級</option>
+            </Select>
+          </Box>
+          <Table variant="simple" mb={6}>
+            <Thead>
+              <Tr>
+                <Th>資格名</Th>
+                <Th>取得日</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {filteredCertifications.length > 0 ? (
+                filteredCertifications.map((cert, index) => (
+                  <Tr key={index}>
+                    <Td>{cert.certification_name}</Td>
+                    <Td>{cert.acquired_date}</Td>
+                  </Tr>
+                ))
+              ) : (
+                <Tr>
+                  <Td colSpan="2">認定資格なし</Td>
+                </Tr>
+              )}
+            </Tbody>
+          </Table>
         </Box>
       </SimpleGrid>
       <Box bg="white" p={6} rounded="md" shadow="md" mt={10} width="100%">
@@ -260,9 +319,9 @@ const ViewUser = () => {
                         backgroundColor: "rgba(255, 99, 132, 0.6)",
                         borderColor: "rgba(255, 99, 132, 1)",
                         borderWidth: 1,
-                        barThickness: 60, // ここでバーの太さを指定
-                        categoryPercentage: 0.8, // カテゴリー全体の幅の割合を指定
-                        barPercentage: 0.8, // 各バーの幅の割合を指定
+                        barThickness: 60, // Set bar thickness here
+                        categoryPercentage: 0.8, // Set category percentage here
+                        barPercentage: 0.8, // Set bar percentage here
                       },
                       {
                         type: "line",
@@ -292,11 +351,32 @@ const ViewUser = () => {
                     scales: {
                       y: {
                         beginAtZero: true,
-                        max: 8,
+                        max: 5,
                         ticks: {
-                          stepSize: 1,
+                          stepSize: 0.5,
                           callback: function (value) {
-                            return skillLevels[value];
+                            switch (value) {
+                              case 0:
+                                return "0.0: 経験なし";
+                              case 0.5:
+                                return "0.5 基礎学習した";
+                              case 1.0:
+                                return "1.0: 指導ありで実施できる";
+                              case 1.5:
+                                return "1.5: 指導ありで実施した";
+                              case 2.0:
+                                return "2.0: 一人で実施できる";
+                              case 2.5:
+                                return "2.5: 一人で実施した";
+                              case 3.0:
+                                return "3.0: 指導できる（アソシ）";
+                              case 4.0:
+                                return "4.0: その道のプロ（シニア）";
+                              case 5.0:
+                                return "5.0: 第一人者（エグゼ）";
+                              default:
+                                return "";
+                            }
                           },
                         },
                       },

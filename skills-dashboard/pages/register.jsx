@@ -15,6 +15,7 @@ import {
   Text,
   VStack,
   Tooltip,
+  useToast,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
@@ -23,6 +24,7 @@ const API_ENDPOINT =
 
 const EmployeeForm = () => {
   const router = useRouter();
+  const toast = useToast();
   const [employee_code, setEmployeeCode] = useState("");
   const [user_name, setUserName] = useState("");
   const [email_address, setEmailAddress] = useState("");
@@ -174,6 +176,13 @@ const EmployeeForm = () => {
   };
 
   const handleSkillChange = (index, value) => {
+    // 3.5と4.5の値を最も近い値に修正
+    if (value === 3.5) {
+      value = 3.0;
+    } else if (value === 4.5) {
+      value = 4.0;
+    }
+
     const updatedSkills = skills.map((skill, i) => {
       if (i === index) {
         return { ...skill, level: value };
@@ -267,7 +276,7 @@ const EmployeeForm = () => {
       position,
       skills: skills.map((skill) => ({
         ...skill,
-        level: parseInt(skill.level),
+        level: parseFloat(skill.level),
       })),
       certifications: certifications.map((cert) => ({
         ...cert,
@@ -295,13 +304,17 @@ const EmployeeForm = () => {
 
       const responseData = await response.json();
       console.log("Success:", responseData);
-      alert("データが正常に送信されました！");
       router.push(
         `/users?newUser=true&userName=${encodeURIComponent(user_name)}`
       );
     } catch (error) {
       console.error("Error:", error);
-      alert("データの送信に失敗しました");
+      toast({
+        title: "データの送信に失敗しました",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
@@ -322,27 +335,22 @@ const EmployeeForm = () => {
 
   const renderSkillMarks = () => {
     const skillLevelDescriptions = [
-      "経験なし",
-      "基礎学習した",
-      "指導ありで実施できる",
-      "指導ありで実施した",
-      "一人で実施できる",
-      "一人で実施した",
-      "指導できる（アソシ）",
-      "その道のプロ（シニア）",
-      "第一人者（エグゼ）",
+      { label: "0: 経験なし", value: 0.0 },
+      { label: "0.5: 基礎学習した", value: 0.5 },
+      { label: "1.0: 指導ありで実施できる", value: 1.0 },
+      { label: "1.5: 指導ありで実施した", value: 1.5 },
+      { label: "2.0: 一人で実施できる", value: 2.0 },
+      { label: "2.5: 一人で実施した", value: 2.5 },
+      { label: "3.0: 指導できる（アソシ）", value: 3.0 },
+      { label: "4.0: その道のプロ（シニア）", value: 4.0 },
+      { label: "5.0: 第一人者（エグゼ）", value: 5.0 },
     ];
 
-    return [...Array(9)].map((_, i) => (
-      <Tooltip
-        key={i}
-        label={skillLevelDescriptions[i] || `スキルレベル ${i}`}
-        hasArrow
-        placement="top"
-      >
+    return skillLevelDescriptions.map((description, i) => (
+      <Tooltip key={i} label={description.label} hasArrow placement="top">
         <Box
           position="absolute"
-          left={`${(i / 8) * 100}%`}
+          left={`${(description.value / 5) * 100}%`}
           transform="translateX(-50%)"
           height="12px"
           width="2px"
@@ -356,13 +364,8 @@ const EmployeeForm = () => {
   const renderCertMarks = () => {
     const certLevelDescriptions = ["初級", "中級", "上級"];
 
-    return [...Array(3)].map((_, i) => (
-      <Tooltip
-        key={i}
-        label={certLevelDescriptions[i] || `資格レベル ${i + 1}`}
-        hasArrow
-        placement="top"
-      >
+    return certLevelDescriptions.map((description, i) => (
+      <Tooltip key={i} label={description} hasArrow placement="top">
         <Box
           position="absolute"
           left={`${(i / 2) * 100}%`}
@@ -539,8 +542,17 @@ const EmployeeForm = () => {
             保有スキル
           </Heading>
           <Box p={4} color="gray.600" bg="gray.100" borderRadius="md" mb={10}>
-            任意入力値です。<br></br>
-            スキルレベルのデフォルト値は0で、0〜8を選択できます。
+            任意入力値です。
+            スキルレベルのデフォルト値は0で、0〜5を選択できます。<br></br>
+            0: 経験なし<br></br>
+            0.5: 基礎学習した<br></br>
+            1.0: 指導ありで実施できる<br></br>
+            1.5: 指導ありで実施した<br></br>
+            2.0: 一人で実施できる<br></br>
+            2.5: 一人で実施した<br></br>
+            3.0: 指導できる（アソシ）<br></br>
+            4.0: その道のプロ（シニア）<br></br>
+            5.0: 第一人者（エグゼ）
           </Box>
           <VStack spacing={6} align="stretch">
             {skillSections.map((section) => (
@@ -563,8 +575,8 @@ const EmployeeForm = () => {
                           flex="1"
                           value={skill.level}
                           min={0}
-                          max={8}
-                          step={1}
+                          max={5}
+                          step={0.5}
                           onChange={(val) =>
                             handleSkillChange(
                               skills.findIndex(
