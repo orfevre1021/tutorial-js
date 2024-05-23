@@ -61,6 +61,8 @@ const ViewUser = () => {
   const [filteredCertifications, setFilteredCertifications] = useState([]);
   const [vendorFilter, setVendorFilter] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [levelSortOrder, setLevelSortOrder] = useState("asc");
   const toast = useToast();
 
   useEffect(() => {
@@ -71,7 +73,7 @@ const ViewUser = () => {
         );
         const data = await response.json();
         setUser(data);
-        setFilteredCertifications([]);
+        setFilteredCertifications(data.certifications || []);
         console.log(data);
 
         if (data.skills && Array.isArray(data.skills)) {
@@ -118,7 +120,7 @@ const ViewUser = () => {
 
   useEffect(() => {
     if (user) {
-      let filtered = user.certifications || [];
+      let filtered = [...user.certifications] || [];
       if (vendorFilter) {
         filtered = filtered.filter((cert) => cert.vender === vendorFilter);
       }
@@ -130,6 +132,30 @@ const ViewUser = () => {
       setFilteredCertifications(filtered);
     }
   }, [vendorFilter, levelFilter, user]);
+
+  useEffect(() => {
+    let sortedCertifications = [...filteredCertifications];
+    if (sortOrder) {
+      sortedCertifications = sortedCertifications.sort((a, b) =>
+        sortOrder === "asc"
+          ? new Date(a.acquired_date) - new Date(b.acquired_date)
+          : new Date(b.acquired_date) - new Date(a.acquired_date)
+      );
+    }
+    setFilteredCertifications(sortedCertifications);
+  }, [sortOrder]);
+
+  useEffect(() => {
+    let sortedCertifications = [...filteredCertifications];
+    if (levelSortOrder) {
+      sortedCertifications = sortedCertifications.sort((a, b) =>
+        levelSortOrder === "asc"
+          ? a.level.localeCompare(b.level)
+          : b.level.localeCompare(a.level)
+      );
+    }
+    setFilteredCertifications(sortedCertifications);
+  }, [levelSortOrder]);
 
   const skillLevels = [
     "経験なし",
@@ -203,16 +229,62 @@ const ViewUser = () => {
   };
 
   const renderVendorIcon = (vendor) => {
+    const iconStyle = {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      width: "40px", // 固定幅
+      height: "40px", // 固定高さ
+      padding: "0", // パディングをリセット
+      borderRadius: "8px",
+      textAlign: "center",
+    };
+
     switch (vendor) {
       case "AWS":
-        return <FaAws />;
+        return (
+          <div
+            style={{ ...iconStyle, backgroundColor: "rgba(255, 153, 51, 0.2)" }}
+          >
+            <FaAws style={{ color: "rgba(255, 153, 51, 1)" }} />
+          </div>
+        );
       case "Azure":
-        return <SiMicrosoftazure />;
+        return (
+          <div
+            style={{ ...iconStyle, backgroundColor: "rgba(51, 153, 255, 0.2)" }}
+          >
+            <SiMicrosoftazure style={{ color: "rgba(51, 153, 255, 1)" }} />
+          </div>
+        );
       case "GCP":
-        return <DiGoogleCloudPlatform />;
+        return (
+          <div
+            style={{ ...iconStyle, backgroundColor: "rgba(255, 82, 82, 0.2)" }}
+          >
+            <DiGoogleCloudPlatform style={{ color: "rgba(255, 82, 82, 1)" }} />
+          </div>
+        );
       default:
-        return <PiCertificateLight />;
+        return (
+          <div
+            style={{
+              ...iconStyle,
+              backgroundColor: "rgba(128, 128, 128, 0.2)",
+            }}
+          >
+            <PiCertificateLight style={{ color: "rgba(128, 128, 128, 1)" }} />
+          </div>
+        );
     }
+  };
+
+  const handleSortOrderChange = () => {
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
+  const handleLevelSortOrderChange = () => {
+    setLevelSortOrder(levelSortOrder === "asc" ? "desc" : "asc");
   };
 
   if (!user)
@@ -231,8 +303,8 @@ const ViewUser = () => {
           削除
         </Button>
       </Flex>
-      <SimpleGrid columns={5} spacing={10}>
-        <Box gridColumn="span 2" bg="white" p={6} rounded="md" shadow="md">
+      <SimpleGrid columns={10} spacing={10}>
+        <Box gridColumn="span 4" bg="white" p={6} rounded="md" shadow="md">
           <Flex justify="space-between" align="center">
             <Heading as="h2" size="lg">
               ユーザー情報
@@ -242,18 +314,18 @@ const ViewUser = () => {
             </Button>
           </Flex>
           <VStack spacing={4} align="start" mt={6}>
-            <Text>氏名コード: {user.employee_code}</Text>
-            <Text>氏名: {user.user_name}</Text>
-            <Text>メールアドレス: {user.email_address}</Text>
-            <Text>事業部: {user.department}</Text>
-            <Text>担当: {user.division}</Text>
-            <Text>役職: {user.position}</Text>
-            <Text>最新更新: {user.updated_date}</Text>
+            <Text mb={4}>氏名コード: {user.employee_code}</Text>
+            <Text mb={4}>氏名: {user.user_name}</Text>
+            <Text mb={4}>メールアドレス: {user.email_address}</Text>
+            <Text mb={4}>事業部: {user.department}</Text>
+            <Text mb={4}>担当: {user.division}</Text>
+            <Text mb={4}>役職: {user.position}</Text>
+            <Text mb={4}>最新更新: {user.updated_date}</Text>
           </VStack>
         </Box>
-        <Box gridColumn="span 3" bg="white" p={6} rounded="md" shadow="md">
+        <Box gridColumn="span 6" bg="white" p={6} rounded="md" shadow="md">
           <Flex justify="space-between" align="center">
-            <Heading as="h2" size="lg">
+            <Heading as="h2" size="lg" mb={6}>
               認定資格
             </Heading>
             <Button colorScheme="blue" onClick={handleEditCertifications}>
@@ -261,13 +333,13 @@ const ViewUser = () => {
             </Button>
           </Flex>
           <Box mb={6}>
-            <Text mb={2}>ベンダーでフィルター:</Text>
+            <Text mb={6}>ベンダーでフィルター:</Text>
             <Select onChange={(e) => setVendorFilter(e.target.value)}>
               <option value="">全て</option>
               <option value="AWS">AWS</option>
               <option value="Azure">Azure</option>
               <option value="GCP">GCP</option>
-              <option value="Other">Other</option>
+              <option value="Another">Another</option>
             </Select>
           </Box>
           <Box mb={4}>
@@ -279,30 +351,67 @@ const ViewUser = () => {
               <option value="3">上級</option>
             </Select>
           </Box>
-          <Table variant="simple" mb={6}>
-            <Thead>
-              <Tr>
-                <Th>ベンダー</Th>
-                <Th>資格名</Th>
-                <Th>取得日</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {filteredCertifications.length > 0 ? (
-                filteredCertifications.map((cert, index) => (
-                  <Tr key={index}>
-                    <Td>{renderVendorIcon(cert.vender)}</Td>
-                    <Td>{cert.certification_name}</Td>
-                    <Td>{cert.acquired_date}</Td>
-                  </Tr>
-                ))
-              ) : (
+          {filteredCertifications.length > 0 ? (
+            <Table variant="simple" mb={6} size="sm">
+              <Thead>
                 <Tr>
-                  <Td colSpan="3">認定資格なし</Td>
+                  <Th
+                    width="13%"
+                    textAlign="center"
+                    borderRight="1px solid lightgray"
+                  ></Th>
+                  <Th width="55%" borderRight="1px solid lightgray">
+                    資格名
+                  </Th>
+                  <Th
+                    width="13%"
+                    borderRight="1px solid lightgray"
+                    textAlign="center"
+                    onClick={handleLevelSortOrderChange}
+                    cursor="pointer"
+                  >
+                    レベル {levelSortOrder === "asc" ? "▲" : "▼"}
+                  </Th>
+                  <Th
+                    width="20%"
+                    textAlign="right"
+                    onClick={handleSortOrderChange}
+                    cursor="pointer"
+                  >
+                    取得日 {sortOrder === "asc" ? "▲" : "▼"}
+                  </Th>
                 </Tr>
-              )}
-            </Tbody>
-          </Table>
+              </Thead>
+              <Tbody>
+                {filteredCertifications.map((cert, index) => (
+                  <Tr key={index} borderBottom="1px solid lightgray">
+                    <Td
+                      textAlign="center"
+                      borderRight="1px solid lightgray"
+                      width="40px"
+                    >
+                      {renderVendorIcon(cert.vender)}
+                    </Td>
+                    <Td borderRight="1px solid lightgray">
+                      {cert.certification_name}
+                    </Td>
+                    <Td textAlign="center" borderRight="1px solid lightgray">
+                      {cert.level === "1"
+                        ? "初級"
+                        : cert.level === "2"
+                        ? "中級"
+                        : "上級"}
+                    </Td>
+                    <Td textAlign="right">{cert.acquired_date}</Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          ) : (
+            <Box mt={6} mb={6} borderRadius="md">
+              <Text>該当資格なし</Text>
+            </Box>
+          )}
         </Box>
       </SimpleGrid>
       <Box bg="white" p={6} rounded="md" shadow="md" mt={10} width="100%">

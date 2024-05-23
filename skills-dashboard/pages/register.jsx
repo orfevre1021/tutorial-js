@@ -629,6 +629,21 @@ const EmployeeForm = () => {
             {certifications.map((cert, index) => (
               <Box key={index} mb={4}>
                 <Box mb={4}>
+                  <Text mb={2}>ベンダー</Text>
+                  <Select
+                    value={cert.vender || ""}
+                    onChange={(e) =>
+                      handleCertificationChange(index, "vender", e.target.value)
+                    }
+                  >
+                    <option value="">ベンダーを選択</option>
+                    <option value="AWS">AWS</option>
+                    <option value="Azure">Azure</option>
+                    <option value="GCP">GCP</option>
+                    <option value="Other">Other</option>
+                  </Select>
+                </Box>
+                <Box mb={4}>
                   <Text mb={2}>資格名</Text>
                   <Input
                     type="text"
@@ -643,21 +658,6 @@ const EmployeeForm = () => {
                       )
                     }
                   />
-                </Box>
-                <Box mb={4}>
-                  <Text mb={2}>ベンダー</Text>
-                  <Select
-                    value={cert.vender || ""}
-                    onChange={(e) =>
-                      handleCertificationChange(index, "vender", e.target.value)
-                    }
-                  >
-                    <option value="">ベンダーを選択</option>
-                    <option value="AWS">AWS</option>
-                    <option value="Azure">Azure</option>
-                    <option value="GCP">GCP</option>
-                    <option value="Other">Other</option>
-                  </Select>
                 </Box>
                 <Box mb={4}>
                   <Text mb={2}>取得日</Text>
