@@ -20,6 +20,10 @@ import {
   Th,
   Td,
 } from "@chakra-ui/react";
+import { FaAws } from "react-icons/fa";
+import { SiMicrosoftazure } from "react-icons/si";
+import { DiGoogleCloudPlatform } from "react-icons/di";
+import { PiCertificateLight } from "react-icons/pi";
 
 import {
   Chart as ChartJS,
@@ -198,6 +202,19 @@ const ViewUser = () => {
     }
   };
 
+  const renderVendorIcon = (vendor) => {
+    switch (vendor) {
+      case "AWS":
+        return <FaAws />;
+      case "Azure":
+        return <SiMicrosoftazure />;
+      case "GCP":
+        return <DiGoogleCloudPlatform />;
+      default:
+        return <PiCertificateLight />;
+    }
+  };
+
   if (!user)
     return (
       <h1 className="text-lg font-bold">
@@ -214,8 +231,8 @@ const ViewUser = () => {
           削除
         </Button>
       </Flex>
-      <SimpleGrid columns={2} spacing={10}>
-        <Box bg="white" p={6} rounded="md" shadow="md">
+      <SimpleGrid columns={5} spacing={10}>
+        <Box gridColumn="span 2" bg="white" p={6} rounded="md" shadow="md">
           <Flex justify="space-between" align="center">
             <Heading as="h2" size="lg">
               ユーザー情報
@@ -234,7 +251,7 @@ const ViewUser = () => {
             <Text>最新更新: {user.updated_date}</Text>
           </VStack>
         </Box>
-        <Box bg="white" p={6} rounded="md" shadow="md">
+        <Box gridColumn="span 3" bg="white" p={6} rounded="md" shadow="md">
           <Flex justify="space-between" align="center">
             <Heading as="h2" size="lg">
               認定資格
@@ -243,13 +260,10 @@ const ViewUser = () => {
               編集
             </Button>
           </Flex>
-          <Box mb={4}>
+          <Box mb={6}>
             <Text mb={2}>ベンダーでフィルター:</Text>
-            <Select
-              placeholder="プルダウンから選択"
-              onChange={(e) => setVendorFilter(e.target.value)}
-            >
-              <option value="">すべてのベンダー</option>
+            <Select onChange={(e) => setVendorFilter(e.target.value)}>
+              <option value="">全て</option>
               <option value="AWS">AWS</option>
               <option value="Azure">Azure</option>
               <option value="GCP">GCP</option>
@@ -258,11 +272,8 @@ const ViewUser = () => {
           </Box>
           <Box mb={4}>
             <Text mb={2}>資格レベルでフィルター:</Text>
-            <Select
-              placeholder="プルダウンから選択"
-              onChange={(e) => setLevelFilter(e.target.value)}
-            >
-              <option value="">すべてのレベル</option>
+            <Select onChange={(e) => setLevelFilter(e.target.value)}>
+              <option value="">全て</option>
               <option value="1">初級</option>
               <option value="2">中級</option>
               <option value="3">上級</option>
@@ -271,6 +282,7 @@ const ViewUser = () => {
           <Table variant="simple" mb={6}>
             <Thead>
               <Tr>
+                <Th>ベンダー</Th>
                 <Th>資格名</Th>
                 <Th>取得日</Th>
               </Tr>
@@ -279,13 +291,14 @@ const ViewUser = () => {
               {filteredCertifications.length > 0 ? (
                 filteredCertifications.map((cert, index) => (
                   <Tr key={index}>
+                    <Td>{renderVendorIcon(cert.vender)}</Td>
                     <Td>{cert.certification_name}</Td>
                     <Td>{cert.acquired_date}</Td>
                   </Tr>
                 ))
               ) : (
                 <Tr>
-                  <Td colSpan="2">認定資格なし</Td>
+                  <Td colSpan="3">認定資格なし</Td>
                 </Tr>
               )}
             </Tbody>
