@@ -7,7 +7,6 @@ import {
   Heading,
   Text,
   VStack,
-  SimpleGrid,
   Button,
   Flex,
   Spacer,
@@ -19,6 +18,11 @@ import {
   Tr,
   Th,
   Td,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
 } from "@chakra-ui/react";
 import { FaAws } from "react-icons/fa";
 import { SiMicrosoftazure } from "react-icons/si";
@@ -63,6 +67,8 @@ const ViewUser = () => {
   const [levelFilter, setLevelFilter] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
   const [levelSortOrder, setLevelSortOrder] = useState("asc");
+  const [vendorSortOrder, setVendorSortOrder] = useState("asc");
+  const [nameSortOrder, setNameSortOrder] = useState("asc");
   const toast = useToast();
 
   useEffect(() => {
@@ -157,6 +163,30 @@ const ViewUser = () => {
     setFilteredCertifications(sortedCertifications);
   }, [levelSortOrder]);
 
+  useEffect(() => {
+    let sortedCertifications = [...filteredCertifications];
+    if (vendorSortOrder) {
+      sortedCertifications = sortedCertifications.sort((a, b) =>
+        vendorSortOrder === "asc"
+          ? a.vender.localeCompare(b.vender)
+          : b.vender.localeCompare(a.vender)
+      );
+    }
+    setFilteredCertifications(sortedCertifications);
+  }, [vendorSortOrder]);
+
+  useEffect(() => {
+    let sortedCertifications = [...filteredCertifications];
+    if (nameSortOrder) {
+      sortedCertifications = sortedCertifications.sort((a, b) =>
+        nameSortOrder === "asc"
+          ? a.certification_name.localeCompare(b.certification_name)
+          : b.certification_name.localeCompare(a.certification_name)
+      );
+    }
+    setFilteredCertifications(sortedCertifications);
+  }, [nameSortOrder]);
+
   const skillLevels = [
     "経験なし",
     "基礎学習した",
@@ -238,6 +268,7 @@ const ViewUser = () => {
       padding: "0", // パディングをリセット
       borderRadius: "8px",
       textAlign: "center",
+      margin: "0 auto", // Center in the column
     };
 
     switch (vendor) {
@@ -287,6 +318,14 @@ const ViewUser = () => {
     setLevelSortOrder(levelSortOrder === "asc" ? "desc" : "asc");
   };
 
+  const handleVendorSortOrderChange = () => {
+    setVendorSortOrder(vendorSortOrder === "asc" ? "desc" : "asc");
+  };
+
+  const handleNameSortOrderChange = () => {
+    setNameSortOrder(nameSortOrder === "asc" ? "desc" : "asc");
+  };
+
   if (!user)
     return (
       <h1 className="text-lg font-bold">
@@ -295,221 +334,263 @@ const ViewUser = () => {
     );
 
   return (
-    <Container maxW="container.xl" p={4}>
-      <Flex mb={4}>
+    <Container maxW="container.xl" paddingLeft={4}>
+      <Flex mb={4} alignItems="center">
         <Header user="Tanaka" />
         <Spacer />
-        <Button colorScheme="red" onClick={handleDeleteUser} width="100px">
-          削除
-        </Button>
       </Flex>
-      <SimpleGrid columns={10} spacing={10}>
-        <Box gridColumn="span 4" bg="white" p={6} rounded="md" shadow="md">
-          <Flex justify="space-between" align="center">
-            <Heading as="h2" size="lg">
-              ユーザー情報
-            </Heading>
-            <Button colorScheme="blue" onClick={handleEditUser}>
-              編集
-            </Button>
-          </Flex>
-          <VStack spacing={4} align="start" mt={6}>
-            <Text mb={4}>氏名コード: {user.employee_code}</Text>
-            <Text mb={4}>氏名: {user.user_name}</Text>
-            <Text mb={4}>メールアドレス: {user.email_address}</Text>
-            <Text mb={4}>事業部: {user.department}</Text>
-            <Text mb={4}>担当: {user.division}</Text>
-            <Text mb={4}>役職: {user.position}</Text>
-            <Text mb={4}>最新更新: {user.updated_date}</Text>
-          </VStack>
-        </Box>
-        <Box gridColumn="span 6" bg="white" p={6} rounded="md" shadow="md">
-          <Flex justify="space-between" align="center">
-            <Heading as="h2" size="lg" mb={6}>
-              認定資格
-            </Heading>
-            <Button colorScheme="blue" onClick={handleEditCertifications}>
-              編集
-            </Button>
-          </Flex>
-          <Box mb={6}>
-            <Text mb={6}>ベンダーでフィルター:</Text>
-            <Select onChange={(e) => setVendorFilter(e.target.value)}>
-              <option value="">全て</option>
-              <option value="AWS">AWS</option>
-              <option value="Azure">Azure</option>
-              <option value="GCP">GCP</option>
-              <option value="Another">Another</option>
-            </Select>
-          </Box>
-          <Box mb={4}>
-            <Text mb={2}>資格レベルでフィルター:</Text>
-            <Select onChange={(e) => setLevelFilter(e.target.value)}>
-              <option value="">全て</option>
-              <option value="1">初級</option>
-              <option value="2">中級</option>
-              <option value="3">上級</option>
-            </Select>
-          </Box>
-          {filteredCertifications.length > 0 ? (
-            <Table variant="simple" mb={6} size="sm">
-              <Thead>
-                <Tr>
-                  <Th
-                    width="13%"
-                    textAlign="center"
-                    borderRight="1px solid lightgray"
-                  ></Th>
-                  <Th width="55%" borderRight="1px solid lightgray">
-                    資格名
-                  </Th>
-                  <Th
-                    width="13%"
-                    borderRight="1px solid lightgray"
-                    textAlign="center"
-                    onClick={handleLevelSortOrderChange}
-                    cursor="pointer"
-                  >
-                    レベル {levelSortOrder === "asc" ? "▲" : "▼"}
-                  </Th>
-                  <Th
-                    width="20%"
-                    textAlign="right"
-                    onClick={handleSortOrderChange}
-                    cursor="pointer"
-                  >
-                    取得日 {sortOrder === "asc" ? "▲" : "▼"}
-                  </Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {filteredCertifications.map((cert, index) => (
-                  <Tr key={index} borderBottom="1px solid lightgray">
-                    <Td
-                      textAlign="center"
-                      borderRight="1px solid lightgray"
-                      width="40px"
-                    >
-                      {renderVendorIcon(cert.vender)}
-                    </Td>
-                    <Td borderRight="1px solid lightgray">
-                      {cert.certification_name}
-                    </Td>
-                    <Td textAlign="center" borderRight="1px solid lightgray">
-                      {cert.level === "1"
-                        ? "初級"
-                        : cert.level === "2"
-                        ? "中級"
-                        : "上級"}
-                    </Td>
-                    <Td textAlign="right">{cert.acquired_date}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          ) : (
-            <Box mt={6} mb={6} borderRadius="md">
-              <Text>該当資格なし</Text>
-            </Box>
-          )}
-        </Box>
-      </SimpleGrid>
-      <Box bg="white" p={6} rounded="md" shadow="md" mt={10} width="100%">
-        <Flex justify="space-between" align="center">
-          <Heading as="h2" size="lg">
-            保有スキル
-          </Heading>
-          <Button colorScheme="blue" onClick={handleEditSkills}>
-            編集
+      <Tabs variant="soft-rounded" colorScheme="blue">
+        <Flex justifyContent="space-between" alignItems="center">
+          <TabList>
+            <Tab>ユーザー情報</Tab>
+            <Tab>保有スキル</Tab>
+            <Tab>認定資格</Tab>
+          </TabList>
+          <Button colorScheme="red" onClick={handleDeleteUser} mr={10}>
+            削除
           </Button>
         </Flex>
-        <VStack spacing={10} align="start" mt={6}>
-          {Object.keys(chartData).map((section) => (
-            <Box key={section} mb={8} width="100%" mx="auto">
-              <Heading as="h3" size="md" mb={14} borderBottom="2px solid black">
-                {section}
-              </Heading>
-              <Box width="80%" height="15cm" mx="auto">
-                <Bar
-                  data={{
-                    labels: chartData[section].map((skill) => skill.skill_name),
-                    datasets: [
-                      {
-                        type: "bar",
-                        label: "自分のスキルレベル",
-                        data: chartData[section].map((skill) => skill.level),
-                        backgroundColor: "rgba(255, 99, 132, 0.6)",
-                        borderColor: "rgba(255, 99, 132, 1)",
-                        borderWidth: 1,
-                        barThickness: 60, // Set bar thickness here
-                        categoryPercentage: 0.8, // Set category percentage here
-                        barPercentage: 0.8, // Set bar percentage here
-                      },
-                      {
-                        type: "line",
-                        label: "同じ役職の平均スキルレベル",
-                        data:
-                          averageData[section]?.map(
-                            (skill) => skill.average_level
-                          ) || [],
-                        backgroundColor: "rgba(54, 162, 235, 1)",
-                        borderColor: "rgba(54, 162, 235, 1)",
-                        borderWidth: 2,
-                        fill: false,
-                      },
-                    ],
-                  }}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        display: true,
-                      },
-                      title: {
-                        display: false,
-                      },
-                    },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        max: 5,
-                        ticks: {
-                          stepSize: 0.5,
-                          callback: function (value) {
-                            switch (value) {
-                              case 0:
-                                return "0.0: 経験なし";
-                              case 0.5:
-                                return "0.5 基礎学習した";
-                              case 1.0:
-                                return "1.0: 指導ありで実施できる";
-                              case 1.5:
-                                return "1.5: 指導ありで実施した";
-                              case 2.0:
-                                return "2.0: 一人で実施できる";
-                              case 2.5:
-                                return "2.5: 一人で実施した";
-                              case 3.0:
-                                return "3.0: 指導できる（アソシ）";
-                              case 4.0:
-                                return "4.0: その道のプロ（シニア）";
-                              case 5.0:
-                                return "5.0: 第一人者（エグゼ）";
-                              default:
-                                return "";
-                            }
-                          },
-                        },
-                      },
-                    },
-                  }}
-                />
-              </Box>
+        <TabPanels>
+          <TabPanel>
+            <Box bg="white" p={6} rounded="md" shadow="md">
+              <Flex justify="space-between" align="center" mb={4}>
+                <Heading as="h2" size="lg">
+                  ユーザー情報
+                </Heading>
+                <Button colorScheme="blue" onClick={handleEditUser}>
+                  編集
+                </Button>
+              </Flex>
+              <VStack spacing={4} align="start" mt={6}>
+                <Text mb={4}>氏名コード: {user.employee_code}</Text>
+                <Text mb={4}>氏名: {user.user_name}</Text>
+                <Text mb={4}>メールアドレス: {user.email_address}</Text>
+                <Text mb={4}>事業部: {user.department}</Text>
+                <Text mb={4}>担当: {user.division}</Text>
+                <Text mb={4}>役職: {user.position}</Text>
+                <Text mb={4}>最新更新: {user.updated_date}</Text>
+              </VStack>
             </Box>
-          ))}
-        </VStack>
-      </Box>
+          </TabPanel>
+
+          <TabPanel>
+            <Box bg="white" p={6} rounded="md" shadow="md">
+              <Flex justify="space-between" align="center" mb={4}>
+                <Heading as="h2" size="lg">
+                  保有スキル
+                </Heading>
+                <Button colorScheme="blue" onClick={handleEditSkills}>
+                  編集
+                </Button>
+              </Flex>
+              <VStack spacing={10} align="start" mt={6}>
+                {Object.keys(chartData).map((section) => (
+                  <Box key={section} mb={8} width="100%" mx="auto">
+                    <Heading
+                      as="h3"
+                      size="md"
+                      mb={14}
+                      borderBottom="2px solid black"
+                    >
+                      {section}
+                    </Heading>
+                    <Box width="80%" height="15cm" mx="auto">
+                      <Bar
+                        data={{
+                          labels: chartData[section].map(
+                            (skill) => skill.skill_name
+                          ),
+                          datasets: [
+                            {
+                              type: "bar",
+                              label: "自分のスキルレベル",
+                              data: chartData[section].map(
+                                (skill) => skill.level
+                              ),
+                              backgroundColor: "rgba(255, 99, 132, 0.6)",
+                              borderColor: "rgba(255, 99, 132, 1)",
+                              borderWidth: 1,
+                              barThickness: 60, // Set bar thickness here
+                              categoryPercentage: 0.8, // Set category percentage here
+                              barPercentage: 0.8, // Set bar percentage here
+                            },
+                            {
+                              type: "line",
+                              label: "同じ役職の平均スキルレベル",
+                              data:
+                                averageData[section]?.map(
+                                  (skill) => skill.average_level
+                                ) || [],
+                              backgroundColor: "rgba(54, 162, 235, 1)",
+                              borderColor: "rgba(54, 162, 235, 1)",
+                              borderWidth: 2,
+                              fill: false,
+                            },
+                          ],
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              display: true,
+                            },
+                            title: {
+                              display: false,
+                            },
+                          },
+                          scales: {
+                            y: {
+                              beginAtZero: true,
+                              max: 5,
+                              ticks: {
+                                stepSize: 0.5,
+                                callback: function (value) {
+                                  switch (value) {
+                                    case 0:
+                                      return "0.0: 経験なし";
+                                    case 0.5:
+                                      return "0.5 基礎学習した";
+                                    case 1.0:
+                                      return "1.0: 指導ありで実施できる";
+                                    case 1.5:
+                                      return "1.5: 指導ありで実施した";
+                                    case 2.0:
+                                      return "2.0: 一人で実施できる";
+                                    case 2.5:
+                                      return "2.5: 一人で実施した";
+                                    case 3.0:
+                                      return "3.0: 指導できる（アソシ）";
+                                    case 4.0:
+                                      return "4.0: その道のプロ（シニア）";
+                                    case 5.0:
+                                      return "5.0: 第一人者（エグゼ）";
+                                    default:
+                                      return "";
+                                  }
+                                },
+                              },
+                            },
+                          },
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                ))}
+              </VStack>
+            </Box>
+          </TabPanel>
+
+          <TabPanel>
+            <Box bg="white" p={6} rounded="md" shadow="md">
+              <Flex justify="space-between" align="center" mb={4}>
+                <Heading as="h2" size="lg">
+                  認定資格
+                </Heading>
+                <Button colorScheme="blue" onClick={handleEditCertifications}>
+                  編集
+                </Button>
+              </Flex>
+              <Box mb={6}>
+                <Text mb={6}>ベンダーでフィルター:</Text>
+                <Select onChange={(e) => setVendorFilter(e.target.value)}>
+                  <option value="">全て</option>
+                  <option value="AWS">AWS</option>
+                  <option value="Azure">Azure</option>
+                  <option value="GCP">GCP</option>
+                  <option value="Another">Another</option>
+                </Select>
+              </Box>
+              <Box mb={4}>
+                <Text mb={2}>資格レベルでフィルター:</Text>
+                <Select onChange={(e) => setLevelFilter(e.target.value)}>
+                  <option value="">全て</option>
+                  <option value="1">初級</option>
+                  <option value="2">中級</option>
+                  <option value="3">上級</option>
+                </Select>
+              </Box>
+              {filteredCertifications.length > 0 ? (
+                <Table variant="simple" mb={6} mt={10} size="sm">
+                  <Thead>
+                    <Tr>
+                      <Th
+                        width="13%"
+                        textAlign="center"
+                        borderRight="1px solid lightgray"
+                        onClick={handleVendorSortOrderChange}
+                        cursor="pointer"
+                      >
+                        ベンダー {vendorSortOrder === "asc" ? "▲" : "▼"}
+                      </Th>
+                      <Th
+                        width="55%"
+                        borderRight="1px solid lightgray"
+                        textAlign="center"
+                        onClick={handleNameSortOrderChange}
+                        cursor="pointer"
+                      >
+                        資格名 {nameSortOrder === "asc" ? "▲" : "▼"}
+                      </Th>
+                      <Th
+                        width="13%"
+                        borderRight="1px solid lightgray"
+                        textAlign="center"
+                        onClick={handleLevelSortOrderChange}
+                        cursor="pointer"
+                      >
+                        レベル {levelSortOrder === "asc" ? "▲" : "▼"}
+                      </Th>
+                      <Th
+                        width="20%"
+                        textAlign="center"
+                        onClick={handleSortOrderChange}
+                        cursor="pointer"
+                      >
+                        取得日 {sortOrder === "asc" ? "▲" : "▼"}
+                      </Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {filteredCertifications.map((cert, index) => (
+                      <Tr key={index} borderBottom="1px solid lightgray">
+                        <Td
+                          textAlign="center"
+                          borderRight="1px solid lightgray"
+                          width="40px"
+                        >
+                          {renderVendorIcon(cert.vender)}
+                        </Td>
+                        <Td
+                          textAlign="center"
+                          borderRight="1px solid lightgray"
+                        >
+                          {cert.certification_name}
+                        </Td>
+                        <Td
+                          textAlign="center"
+                          borderRight="1px solid lightgray"
+                        >
+                          {cert.level === "1"
+                            ? "初級"
+                            : cert.level === "2"
+                            ? "中級"
+                            : "上級"}
+                        </Td>
+                        <Td textAlign="center">{cert.acquired_date}</Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              ) : (
+                <Box mt={6} mb={6} borderRadius="md">
+                  <Text>該当資格なし</Text>
+                </Box>
+              )}
+            </Box>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </Container>
   );
 };
