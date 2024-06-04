@@ -1,34 +1,29 @@
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import Header from "../../components/Header";
+// pages/dashboard.jsx
+
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Box,
   Heading,
-  Text,
   VStack,
-  Button,
   Flex,
   Spacer,
+  Text,
   Select,
-  useToast,
   Table,
   Thead,
   Tbody,
   Tr,
   Th,
   Td,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
+  useToast,
 } from "@chakra-ui/react";
 import { FaAws } from "react-icons/fa";
 import { SiMicrosoftazure } from "react-icons/si";
 import { DiGoogleCloudPlatform } from "react-icons/di";
 import { PiCertificateLight } from "react-icons/pi";
-
+import Header from "../components/Header";
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -41,9 +36,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Bar } from "react-chartjs-2";
 
-// Register LineController
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -56,31 +49,38 @@ ChartJS.register(
   Legend
 );
 
-const ViewUser = () => {
-  const router = useRouter();
-  const { employee_code } = router.query;
+const Dashboard = () => {
+  const [latestUpdates, setLatestUpdates] = useState([]);
   const [user, setUser] = useState(null);
   const [chartData, setChartData] = useState({});
   const [averageData, setAverageData] = useState({});
   const [filteredCertifications, setFilteredCertifications] = useState([]);
   const [vendorFilter, setVendorFilter] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [levelSortOrder, setLevelSortOrder] = useState("asc");
-  const [vendorSortOrder, setVendorSortOrder] = useState("asc");
-  const [nameSortOrder, setNameSortOrder] = useState("asc");
   const toast = useToast();
+
+  useEffect(() => {
+    // Fetch the latest updates
+    const fetchLatestUpdates = async () => {
+      try {
+        const response = await fetch("/api/latest-updates");
+        const data = await response.json();
+        setLatestUpdates(data);
+      } catch (error) {
+        console.error("Failed to fetch latest updates:", error);
+      }
+    };
+
+    fetchLatestUpdates();
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch(
-          `https://yurdpuchaa.execute-api.ap-northeast-1.amazonaws.com/dev8/users/${employee_code}`
-        );
+        const response = await fetch("/api/user"); // Adjust the endpoint as needed
         const data = await response.json();
         setUser(data);
         setFilteredCertifications(data.certifications || []);
-        console.log(data);
 
         if (data.skills && Array.isArray(data.skills)) {
           const transformedData = data.skills.reduce((acc, skill) => {
@@ -94,10 +94,9 @@ const ViewUser = () => {
           }, {});
           setChartData(transformedData);
 
-          // Fetch average skill levels
           const position = data.position;
           const avgResponse = await fetch(
-            `https://yurdpuchaa.execute-api.ap-northeast-1.amazonaws.com/dev10/average?position=${position}`
+            `/api/average-skills?position=${position}`
           );
           const avgData = await avgResponse.json();
           const avgTransformedData = avgData.Items[0].skills.L.reduce(
@@ -119,10 +118,8 @@ const ViewUser = () => {
       }
     };
 
-    if (employee_code) {
-      fetchUser();
-    }
-  }, [employee_code]);
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -139,122 +136,16 @@ const ViewUser = () => {
     }
   }, [vendorFilter, levelFilter, user]);
 
-  useEffect(() => {
-    let sortedCertifications = [...filteredCertifications];
-    if (sortOrder) {
-      sortedCertifications = sortedCertifications.sort((a, b) =>
-        sortOrder === "asc"
-          ? new Date(a.acquired_date) - new Date(b.acquired_date)
-          : new Date(b.acquired_date) - new Date(a.acquired_date)
-      );
-    }
-    setFilteredCertifications(sortedCertifications);
-  }, [sortOrder]);
-
-  useEffect(() => {
-    let sortedCertifications = [...filteredCertifications];
-    if (levelSortOrder) {
-      sortedCertifications = sortedCertifications.sort((a, b) =>
-        levelSortOrder === "asc"
-          ? a.level.localeCompare(b.level)
-          : b.level.localeCompare(a.level)
-      );
-    }
-    setFilteredCertifications(sortedCertifications);
-  }, [levelSortOrder]);
-
-  useEffect(() => {
-    let sortedCertifications = [...filteredCertifications];
-    if (vendorSortOrder) {
-      sortedCertifications = sortedCertifications.sort((a, b) =>
-        vendorSortOrder === "asc"
-          ? a.vender.localeCompare(b.vender)
-          : b.vender.localeCompare(a.vender)
-      );
-    }
-    setFilteredCertifications(sortedCertifications);
-  }, [vendorSortOrder]);
-
-  useEffect(() => {
-    let sortedCertifications = [...filteredCertifications];
-    if (nameSortOrder) {
-      sortedCertifications = sortedCertifications.sort((a, b) =>
-        nameSortOrder === "asc"
-          ? a.certification_name.localeCompare(b.certification_name)
-          : b.certification_name.localeCompare(a.certification_name)
-      );
-    }
-    setFilteredCertifications(sortedCertifications);
-  }, [nameSortOrder]);
-
-  const skillLevels = [
-    "経験なし",
-    "基礎学習した",
-    "指導ありで実施できる",
-    "指導ありで実施した",
-    "一人で実施できる",
-    "一人で実施した",
-    "指導できる（アソシ）",
-    "その道のプロ（シニア）",
-    "第一人者（エグゼ）",
-  ];
-
-  const handleEditUser = () => {
-    router.push(`/edit/user/${employee_code}`);
-  };
-
-  const handleEditCertifications = () => {
-    router.push(`/edit/certifications/${employee_code}`);
-  };
-
-  const handleEditSkills = () => {
-    router.push(`/edit/skills/${employee_code}`);
-  };
-
-  const handleDeleteUser = async () => {
-    if (!user) return;
-    const confirmDelete = confirm(
-      `本当にユーザー「${user.user_name}」を削除しますか？`
-    );
-
-    if (confirmDelete) {
-      try {
-        const response = await fetch(
-          "https://yurdpuchaa.execute-api.ap-northeast-1.amazonaws.com/dev9/delete",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              employee_code: employee_code,
-            }),
-          }
-        );
-
-        if (response.ok) {
-          router.push({
-            pathname: "/users",
-            query: { deleteSuccess: true, userName: user.user_name },
-          });
-        } else {
-          toast({
-            title: "ユーザーの削除に失敗しました。",
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-          });
-          console.error("Failed to delete user");
-        }
-      } catch (error) {
-        toast({
-          title: "ユーザーの削除中にエラーが発生しました。",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-        console.error("Failed to delete user:", error);
-      }
+  const getLevelColor = (level) => {
+    switch (level) {
+      case "1":
+        return "rgba(144, 238, 144, 0.6)"; // Light green for 初級
+      case "2":
+        return "rgba(255, 255, 153, 0.6)"; // Light yellow for 中級
+      case "3":
+        return "rgba(255, 182, 193, 0.6)"; // Light pink for 上級
+      default:
+        return "transparent";
     }
   };
 
@@ -263,12 +154,12 @@ const ViewUser = () => {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      width: "40px", // 固定幅
-      height: "40px", // 固定高さ
-      padding: "0", // パディングをリセット
+      width: "40px",
+      height: "40px",
+      padding: "0",
       borderRadius: "8px",
       textAlign: "center",
-      margin: "0 auto", // 中央揃え
+      margin: "0 auto",
     };
 
     switch (vendor) {
@@ -310,92 +201,16 @@ const ViewUser = () => {
     }
   };
 
-  const handleSortOrderChange = () => {
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-  };
-
-  const handleLevelSortOrderChange = () => {
-    setLevelSortOrder(levelSortOrder === "asc" ? "desc" : "asc");
-  };
-
-  const handleVendorSortOrderChange = () => {
-    setVendorSortOrder(vendorSortOrder === "asc" ? "desc" : "asc");
-  };
-
-  const handleNameSortOrderChange = () => {
-    setNameSortOrder(nameSortOrder === "asc" ? "desc" : "asc");
-  };
-
-  const getLevelColor = (level) => {
-    switch (level) {
-      case "1":
-        return "rgba(144, 238, 144, 0.6)"; // 初級
-      case "2":
-        return "rgba(255, 255, 153, 0.6)"; // 中級
-      case "3":
-        return "rgba(255, 182, 193, 0.6)"; // 上級
-      default:
-        return "transparent"; // 透明
-    }
-  };
-
-  if (!user)
-    return (
-      <h1 className="text-lg font-bold">
-        ユーザー {employee_code} のデータを取得中...
-      </h1>
-    );
-
   return (
-    <Container maxW="container.xl" paddingLeft={4}>
-      <Flex mb={4} alignItems="center">
-        <Header user="Tanaka" />
-        <Spacer />
-      </Flex>
-      <Tabs variant="soft-rounded" colorScheme="blue">
-        <Flex justifyContent="space-between" alignItems="center">
-          <TabList>
-            <Tab>ユーザー情報</Tab>
-            <Tab>保有スキル</Tab>
-            <Tab>認定資格</Tab>
-          </TabList>
-          <Button colorScheme="red" onClick={handleDeleteUser} mr={10}>
-            削除
-          </Button>
-        </Flex>
-        <TabPanels>
-          <TabPanel>
+    <Container maxW="container.xl" padding={4}>
+      <Header user="Tanaka" />
+      <Flex mt={4}>
+        <Box flex="1" mr={4}>
+          <VStack spacing={4} align="stretch">
             <Box bg="white" p={6} rounded="md" shadow="md">
-              <Flex justify="space-between" align="center" mb={4}>
-                <Heading as="h2" size="lg">
-                  ユーザー情報
-                </Heading>
-                <Button colorScheme="blue" onClick={handleEditUser}>
-                  編集
-                </Button>
-              </Flex>
-              <VStack spacing={4} align="start" mt={6}>
-                <Text mb={4}>氏名コード: {user.employee_code}</Text>
-                <Text mb={4}>氏名: {user.user_name}</Text>
-                <Text mb={4}>メールアドレス: {user.email_address}</Text>
-                <Text mb={4}>事業部: {user.department}</Text>
-                <Text mb={4}>担当: {user.division}</Text>
-                <Text mb={4}>役職: {user.position}</Text>
-                <Text mb={4}>最新更新: {user.updated_date}</Text>
-              </VStack>
-            </Box>
-          </TabPanel>
-
-          <TabPanel>
-            <Box bg="white" p={6} rounded="md" shadow="md">
-              <Flex justify="space-between" align="center" mb={4}>
-                <Heading as="h2" size="lg">
-                  保有スキル
-                </Heading>
-                <Button colorScheme="blue" onClick={handleEditSkills}>
-                  編集
-                </Button>
-              </Flex>
+              <Heading as="h2" size="lg" mb={4}>
+                スキルコンテナー
+              </Heading>
               <VStack spacing={10} align="start" mt={6}>
                 {Object.keys(chartData).map((section) => (
                   <Box key={section} mb={8} width="100%" mx="auto">
@@ -423,9 +238,9 @@ const ViewUser = () => {
                               backgroundColor: "rgba(255, 99, 132, 0.6)",
                               borderColor: "rgba(255, 99, 132, 1)",
                               borderWidth: 1,
-                              barThickness: 60, // Set bar thickness here
-                              categoryPercentage: 0.8, // Set category percentage here
-                              barPercentage: 0.8, // Set bar percentage here
+                              barThickness: 60,
+                              categoryPercentage: 0.8,
+                              barPercentage: 0.8,
                             },
                             {
                               type: "line",
@@ -492,18 +307,11 @@ const ViewUser = () => {
                 ))}
               </VStack>
             </Box>
-          </TabPanel>
 
-          <TabPanel>
             <Box bg="white" p={6} rounded="md" shadow="md">
-              <Flex justify="space-between" align="center" mb={4}>
-                <Heading as="h2" size="lg">
-                  認定資格
-                </Heading>
-                <Button colorScheme="blue" onClick={handleEditCertifications}>
-                  編集
-                </Button>
-              </Flex>
+              <Heading as="h2" size="lg" mb={4}>
+                資格コンテナー
+              </Heading>
               <Box mb={6}>
                 <Text mt={6} mb={2}>
                   ベンダーでフィルター:
@@ -533,36 +341,25 @@ const ViewUser = () => {
                         width="13%"
                         textAlign="center"
                         borderRight="1px solid lightgray"
-                        onClick={handleVendorSortOrderChange}
-                        cursor="pointer"
                       >
-                        ベンダー {vendorSortOrder === "asc" ? "▲" : "▼"}
+                        ベンダー
                       </Th>
                       <Th
                         width="55%"
                         borderRight="1px solid lightgray"
                         textAlign="center"
-                        onClick={handleNameSortOrderChange}
-                        cursor="pointer"
                       >
-                        資格名 {nameSortOrder === "asc" ? "▲" : "▼"}
+                        資格名
                       </Th>
                       <Th
                         width="13%"
                         borderRight="1px solid lightgray"
                         textAlign="center"
-                        onClick={handleLevelSortOrderChange}
-                        cursor="pointer"
                       >
-                        レベル {levelSortOrder === "asc" ? "▲" : "▼"}
+                        レベル
                       </Th>
-                      <Th
-                        width="20%"
-                        textAlign="center"
-                        onClick={handleSortOrderChange}
-                        cursor="pointer"
-                      >
-                        取得日 {sortOrder === "asc" ? "▲" : "▼"}
+                      <Th width="20%" textAlign="center">
+                        取得日
                       </Th>
                     </Tr>
                   </Thead>
@@ -612,11 +409,27 @@ const ViewUser = () => {
                 </Box>
               )}
             </Box>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+          </VStack>
+        </Box>
+
+        <Box width="30%" bg="white" p={6} rounded="md" shadow="md">
+          <Heading as="h2" size="lg" mb={4}>
+            最新更新
+          </Heading>
+          {latestUpdates.length > 0 ? (
+            latestUpdates.map((update, index) => (
+              <Box key={index} mb={4}>
+                <Text>{update.date}</Text>
+                <Text>{update.message}</Text>
+              </Box>
+            ))
+          ) : (
+            <Text>最新の更新情報はありません。</Text>
+          )}
+        </Box>
+      </Flex>
     </Container>
   );
 };
 
-export default ViewUser;
+export default Dashboard;

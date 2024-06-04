@@ -3,9 +3,12 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { RxPerson } from "react-icons/rx";
 import { FiSettings } from "react-icons/fi";
+import { RiUserStarFill } from "react-icons/ri";
 import { SiSkillshare } from "react-icons/si";
 import { FaSignOutAlt } from "react-icons/fa";
-import { RxDashboard } from "react-icons/rx";
+import { IoIosNotifications } from "react-icons/io";
+import { GiStrongMan } from "react-icons/gi";
+import { GiStarMedal } from "react-icons/gi";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { ChakraProvider, Box, IconButton, Flex } from "@chakra-ui/react";
 import Header from "./Header";
@@ -18,20 +21,16 @@ const Sidebar = ({ children }) => {
   const [showText, setShowText] = useState(true);
 
   const toggleSidebar = () => {
-    if (isOpen) {
-      setIsOpen(false); // まずサイドバーを閉じる
-      setShowText(false); // サイドバーが閉じたらテキストを非表示にする
-    } else {
-      setIsOpen(true); // まずサイドバーを開く
-      setTimeout(() => {
-        setShowText(true); // その後、テキストを表示する
-      }, 100); // サイドバーのトランジション時間に合わせる
-    }
+    setIsOpen(!isOpen);
   };
 
   useEffect(() => {
     if (!isOpen) {
       setShowText(false);
+    } else {
+      setTimeout(() => {
+        setShowText(true);
+      }, 100);
     }
   }, [isOpen]);
 
@@ -40,34 +39,34 @@ const Sidebar = ({ children }) => {
       <div className="flex">
         <Box
           className={`fixed h-screen p-4 bg-blue-700 text-white flex flex-col justify-between z-20 transition-width duration-100 ${
-            isOpen ? "w-64" : "w-20"
+            isOpen ? "w-52" : "w-20"
           }`}
         >
           <div>
             <div className="flex items-center justify-center mb-6">
               <Link href="/">
                 <div className="text-white p-3 rounded-lg inline-block">
-                  <SiSkillshare size={isOpen ? 100 : 40} />
+                  <SiSkillshare size={isOpen ? 80 : 30} />
                 </div>
               </Link>
             </div>
 
             <nav className="flex flex-col space-y-4 flex-1">
-              <Link href="/dashboard">
+              <Link href="/notifications">
                 <div
                   className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-blue-300 ${
-                    currentRoute === "/dashboard"
+                    currentRoute === "/notifications"
                       ? "bg-blue-500"
                       : "bg-blue-700"
                   }`}
                 >
-                  <RxDashboard size={24} />
+                  <IoIosNotifications size={20} />
                   <span
                     className={`${
                       showText ? "block" : "hidden"
-                    } font-bold text-lg`}
+                    } font-bold text-sm`}
                   >
-                    ダッシュボード
+                    お知らせ
                   </span>
                 </div>
               </Link>
@@ -77,32 +76,46 @@ const Sidebar = ({ children }) => {
                     currentRoute === "/users" ? "bg-blue-500" : "bg-blue-700"
                   }`}
                 >
-                  <RxPerson size={24} />
-                  <span className={`${showText ? "block" : "hidden"} text-lg`}>
+                  <RiUserStarFill size={20} />
+                  <span className={`${showText ? "block" : "hidden"} text-sm`}>
                     ユーザー
                   </span>
                 </div>
               </Link>
-              <Link href="/settings">
+              <Link href="/skills">
                 <div
                   className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer font-bold hover:bg-blue-300 ${
-                    currentRoute === "/settings" ? "bg-blue-500" : "bg-blue-700"
+                    currentRoute === "/skills" ? "bg-blue-500" : "bg-blue-700"
                   }`}
                 >
-                  <FiSettings size={24} />
-                  <span className={`${showText ? "block" : "hidden"} text-lg`}>
-                    設定
+                  <GiStrongMan size={20} />
+                  <span className={`${showText ? "block" : "hidden"} text-sm`}>
+                    スキル
+                  </span>
+                </div>
+              </Link>
+              <Link href="/certifications">
+                <div
+                  className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer font-bold hover:bg-blue-300 ${
+                    currentRoute === "/certifications"
+                      ? "bg-blue-500"
+                      : "bg-blue-700"
+                  }`}
+                >
+                  <GiStarMedal size={20} />
+                  <span className={`${showText ? "block" : "hidden"} text-sm`}>
+                    資格
                   </span>
                 </div>
               </Link>
               <Link href="/signout">
                 <div
-                  className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer font-bold  hover:bg-blue-300 ${
+                  className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer font-bold hover:bg-blue-300 ${
                     currentRoute === "/signout" ? "bg-blue-500" : "bg-blue-700"
                   }`}
                 >
-                  <FaSignOutAlt size={24} />
-                  <span className={`${showText ? "block" : "hidden"} text-lg`}>
+                  <FaSignOutAlt size={20} />
+                  <span className={`${showText ? "block" : "hidden"} text-sm`}>
                     サインアウト
                   </span>
                 </div>
@@ -125,7 +138,7 @@ const Sidebar = ({ children }) => {
         </Box>
         <div
           className={`flex flex-col flex-1 transition-all duration-100 ${
-            isOpen ? "ml-64" : "ml-20"
+            isOpen ? "ml-52" : "ml-20"
           }`}
         >
           <Header user="Tanaka" />
