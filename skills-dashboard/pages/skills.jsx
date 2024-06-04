@@ -139,6 +139,7 @@ const SkillsPage = () => {
     return (
       <Tr>
         <Th></Th>
+        <Th></Th>
         {filteredUsers.map((user, index) => (
           <Th key={index} textAlign="center">
             {user.user_name.S}
@@ -146,6 +147,44 @@ const SkillsPage = () => {
         ))}
       </Tr>
     );
+  };
+
+  const renderRows = () => {
+    let previousSection = "";
+    return skillOrder.map((skill, skillIndex) => {
+      const isSameSection = previousSection === skill.section;
+      previousSection = skill.section;
+      return (
+        <Tr key={skillIndex}>
+          {!isSameSection && (
+            <Td
+              rowSpan={
+                skillOrder.filter((s) => s.section === skill.section).length
+              }
+              textAlign="center"
+              verticalAlign="middle"
+            >
+              <Text fontWeight="bold">{skill.section}</Text>
+            </Td>
+          )}
+          <Td>
+            <Text fontWeight="bold">{skill.skill_name}</Text>
+          </Td>
+          {filteredUsers.map((user, userIndex) => {
+            const userSkill = user.skills.L.find(
+              (s) =>
+                s.M.skill_name.S === skill.skill_name &&
+                s.M.section.S === skill.section
+            );
+            return (
+              <Td key={userIndex} textAlign="center">
+                {userSkill ? getSymbolForLevel(userSkill.M.level.N) : "-"}
+              </Td>
+            );
+          })}
+        </Tr>
+      );
+    });
   };
 
   return (
@@ -194,30 +233,7 @@ const SkillsPage = () => {
             sx={{ tableLayout: "fixed" }}
           >
             <Thead>{renderHeader()}</Thead>
-            <Tbody>
-              {skillOrder.map((skill, skillIndex) => (
-                <Tr key={skillIndex}>
-                  <Td>
-                    <Text fontWeight="bold">{skill.section}</Text>
-                    <Text>{skill.skill_name}</Text>
-                  </Td>
-                  {filteredUsers.map((user, userIndex) => {
-                    const userSkill = user.skills.L.find(
-                      (s) =>
-                        s.M.skill_name.S === skill.skill_name &&
-                        s.M.section.S === skill.section
-                    );
-                    return (
-                      <Td key={userIndex} textAlign="center">
-                        {userSkill
-                          ? getSymbolForLevel(userSkill.M.level.N)
-                          : "-"}
-                      </Td>
-                    );
-                  })}
-                </Tr>
-              ))}
-            </Tbody>
+            <Tbody>{renderRows()}</Tbody>
           </Table>
         </Box>
       </Box>
