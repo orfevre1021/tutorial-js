@@ -141,7 +141,7 @@ const SkillsPage = () => {
             textAlign="center"
             border="1px"
             borderColor="gray.300"
-            width={20}
+            width={40}
           >
             氏名
           </Th>
@@ -179,7 +179,7 @@ const SkillsPage = () => {
               textAlign="center"
               border="1px"
               borderColor="gray.300"
-              width={150}
+              width={30}
             >
               {skill.skill_name}
             </Th>
@@ -194,10 +194,15 @@ const SkillsPage = () => {
       const isEvenRow = userIndex % 2 === 0;
       return (
         <Tr key={userIndex} bg={isEvenRow ? "gray.200" : "white"}>
-          <Td border="1px" borderColor="gray.300" textAlign="center">
+          <Td border="1px" borderColor="gray.300" textAlign="center" width={80}>
             {user.user_name.S}
           </Td>
-          <Td border="1px" borderColor="gray.300" textAlign="center">
+          <Td
+            border="1px"
+            borderColor="gray.300"
+            textAlign="center"
+            width={150}
+          >
             <Text>
               {user.department.S}
               <br />
@@ -218,7 +223,7 @@ const SkillsPage = () => {
                 textAlign="center"
                 border="1px"
                 borderColor="gray.300"
-                width={150}
+                width={30}
               >
                 {userSkill ? getSymbolForLevel(userSkill.M.level.N) : "-"}
               </Td>
@@ -266,11 +271,10 @@ const SkillsPage = () => {
         overflowX="auto"
         maxH="70vh"
       >
-        <Box>
+        <Box width="6000px">
           <Table
             variant="simple"
             size="sm"
-            w="100%"
             sx={{ tableLayout: "fixed", borderCollapse: "collapse" }}
           >
             <Thead>{renderHeader()}</Thead>
