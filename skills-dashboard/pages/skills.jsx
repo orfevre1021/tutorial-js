@@ -59,15 +59,11 @@ const skillOrder = [
 
 const getSymbolForLevel = (level) => {
   const parsedLevel = parseFloat(level);
-  if (parsedLevel === 0) return ""; // Cross for level 0
-  if (parsedLevel === 0.5) return "・"; // Dot for level 0.5
-  if (parsedLevel === 1.0) return "△"; // Triangle for level 1.0
-  if (parsedLevel === 1.5) return "▲"; // Filled triangle for level 1.5
-  if (parsedLevel === 2.0) return "○"; // Circle for level 2.0
-  if (parsedLevel === 2.5) return "◎"; // Double circle for level 2.5
-  if (parsedLevel === 3.0) return "☆"; // Star for level 3.0
-  if (parsedLevel === 4.0) return "★"; // Filled star for level 4.0
-  if (parsedLevel === 5.0) return "★"; // Filled star for level 5.0 (same as 4.0 in example)
+  if (parsedLevel === 0) return "-";
+  if (parsedLevel < 2) return "△"; // Triangle for levels less than 2
+  if (parsedLevel < 3) return "○"; // Circle for levels less than 3
+  if (parsedLevel < 4) return "◎"; // Double circle for levels less than 4
+  if (parsedLevel === 5) return "☆"; // Star for level 5
   return "？"; // Question mark for undefined levels
 };
 
@@ -136,48 +132,94 @@ const SkillsPage = () => {
   });
 
   const renderHeader = () => {
+    let previousSection = "";
     return (
-      <Tr>
-        <Th></Th>
-        <Th></Th>
-        {filteredUsers.map((user, index) => (
-          <Th key={index} textAlign="center">
-            {user.user_name.S}
+      <>
+        <Tr>
+          <Th
+            rowSpan={2}
+            textAlign="center"
+            border="1px"
+            borderColor="gray.300"
+            width={20}
+          >
+            氏名
           </Th>
-        ))}
-      </Tr>
+          <Th
+            rowSpan={2}
+            textAlign="center"
+            border="1px"
+            borderColor="gray.300"
+            width={40}
+          >
+            事業部/担当/役職
+          </Th>
+          {skillOrder.map((skill, index) => {
+            const isNewSection = skill.section !== previousSection;
+            previousSection = skill.section;
+            return isNewSection ? (
+              <Th
+                key={index}
+                colSpan={
+                  skillOrder.filter((s) => s.section === skill.section).length
+                }
+                textAlign="center"
+                border="1px"
+                borderColor="gray.300"
+              >
+                {skill.section}
+              </Th>
+            ) : null;
+          })}
+        </Tr>
+        <Tr>
+          {skillOrder.map((skill, index) => (
+            <Th
+              key={index}
+              textAlign="center"
+              border="1px"
+              borderColor="gray.300"
+              width={150}
+            >
+              {skill.skill_name}
+            </Th>
+          ))}
+        </Tr>
+      </>
     );
   };
 
   const renderRows = () => {
-    let previousSection = "";
-    return skillOrder.map((skill, skillIndex) => {
-      const isSameSection = previousSection === skill.section;
-      previousSection = skill.section;
+    return filteredUsers.map((user, userIndex) => {
+      const isEvenRow = userIndex % 2 === 0;
       return (
-        <Tr key={skillIndex}>
-          {!isSameSection && (
-            <Td
-              rowSpan={
-                skillOrder.filter((s) => s.section === skill.section).length
-              }
-              textAlign="center"
-              verticalAlign="middle"
-            >
-              <Text fontWeight="bold">{skill.section}</Text>
-            </Td>
-          )}
-          <Td>
-            <Text fontWeight="bold">{skill.skill_name}</Text>
+        <Tr key={userIndex} bg={isEvenRow ? "gray.200" : "white"}>
+          <Td border="1px" borderColor="gray.300" textAlign="center">
+            {user.user_name.S}
           </Td>
-          {filteredUsers.map((user, userIndex) => {
+          <Td border="1px" borderColor="gray.300" textAlign="center">
+            <Text>
+              {user.department.S}
+              <br />
+              {user.division.S}
+              <br />
+              {user.position.S}
+            </Text>
+          </Td>
+          {skillOrder.map((skill, skillIndex) => {
             const userSkill = user.skills.L.find(
               (s) =>
                 s.M.skill_name.S === skill.skill_name &&
                 s.M.section.S === skill.section
             );
             return (
-              <Td key={userIndex} textAlign="center">
+              <Td
+                key={skillIndex}
+                textAlign="center"
+                border="1px"
+                borderColor="gray.300"
+                width={150}
+              >
                 {userSkill ? getSymbolForLevel(userSkill.M.level.N) : "-"}
               </Td>
             );
@@ -221,16 +263,15 @@ const SkillsPage = () => {
         p={6}
         rounded="md"
         shadow="md"
-        overflow="auto"
+        overflowX="auto"
         maxH="70vh"
-        sx={{ display: "flex", justifyContent: "center" }}
       >
         <Box>
           <Table
             variant="simple"
             size="sm"
             w="100%"
-            sx={{ tableLayout: "fixed" }}
+            sx={{ tableLayout: "fixed", borderCollapse: "collapse" }}
           >
             <Thead>{renderHeader()}</Thead>
             <Tbody>{renderRows()}</Tbody>
