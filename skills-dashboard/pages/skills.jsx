@@ -9,11 +9,13 @@ import {
   Th,
   Td,
   Flex,
-  Spacer,
   Select,
   Text,
+  Tooltip,
+  Link,
 } from "@chakra-ui/react";
 import Header from "../components/Header";
+import NextLink from "next/link";
 
 const skillOrder = [
   { section: "IaaS", skill_name: "仮想マシン" },
@@ -57,16 +59,6 @@ const skillOrder = [
   { section: "オンプレ連携", skill_name: "ハイブリッドストレージ" },
 ];
 
-const getSymbolForLevel = (level) => {
-  const parsedLevel = parseFloat(level);
-  if (parsedLevel === 0) return "-";
-  if (parsedLevel < 2) return "△"; // Triangle for levels less than 2
-  if (parsedLevel < 3) return "○"; // Circle for levels less than 3
-  if (parsedLevel < 4) return "◎"; // Double circle for levels less than 4
-  if (parsedLevel === 5) return "☆"; // Star for level 5
-  return "？"; // Question mark for undefined levels
-};
-
 const SkillsPage = () => {
   const [users, setUsers] = useState([]);
   const [sortedUsers, setSortedUsers] = useState([]);
@@ -76,6 +68,10 @@ const SkillsPage = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedDivision, setSelectedDivision] = useState("");
   const [selectedPosition, setSelectedPosition] = useState("");
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "ascending",
+  });
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -123,6 +119,14 @@ const SkillsPage = () => {
     setSelectedPosition(event.target.value);
   };
 
+  const handleSort = (key) => {
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+
   const filteredUsers = sortedUsers.filter((user) => {
     return (
       (selectedDepartment ? user.department.S === selectedDepartment : true) &&
@@ -130,6 +134,58 @@ const SkillsPage = () => {
       (selectedPosition ? user.position.S === selectedPosition : true)
     );
   });
+
+  const sortedFilteredUsers = [...filteredUsers].sort((a, b) => {
+    if (sortConfig.key) {
+      let aValue, bValue;
+      if (sortConfig.key === "user_name") {
+        aValue = a.user_name.S;
+        bValue = b.user_name.S;
+      } else if (sortConfig.key === "department") {
+        aValue = a.department.S;
+        bValue = b.department.S;
+      } else if (sortConfig.key === "division") {
+        aValue = a.division.S;
+        bValue = b.division.S;
+      } else if (sortConfig.key === "position") {
+        aValue = a.position.S;
+        bValue = b.position.S;
+      } else {
+        const skill = skillOrder.find(
+          (s) =>
+            s.skill_name === sortConfig.key.skill_name &&
+            s.section === sortConfig.key.section
+        );
+        const userASkill = a.skills.L.find(
+          (s) =>
+            s.M.skill_name.S === skill.skill_name &&
+            s.M.section.S === skill.section
+        );
+        const userBSkill = b.skills.L.find(
+          (s) =>
+            s.M.skill_name.S === skill.skill_name &&
+            s.M.section.S === skill.section
+        );
+        aValue = userASkill ? parseFloat(userASkill.M.level.N) : 0;
+        bValue = userBSkill ? parseFloat(userBSkill.M.level.N) : 0;
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === "ascending" ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === "ascending" ? 1 : -1;
+      }
+    }
+    return 0;
+  });
+
+  const renderSortIcons = (key) => {
+    if (sortConfig.key === key) {
+      return sortConfig.direction === "ascending" ? "▲" : "▼";
+    }
+    return "▼";
+  };
 
   const renderHeader = () => {
     let previousSection = "";
@@ -141,18 +197,64 @@ const SkillsPage = () => {
             textAlign="center"
             border="1px"
             borderColor="gray.300"
-            width={40}
+            w="120px"
+            textTransform="none"
+            cursor="pointer"
+            onClick={() => handleSort("user_name")}
+            className="sticky-header"
           >
-            氏名
+            氏名 <br />
+            <span style={{ fontSize: "0.8em" }}>
+              {renderSortIcons("user_name")}
+            </span>
           </Th>
           <Th
             rowSpan={2}
             textAlign="center"
             border="1px"
             borderColor="gray.300"
-            width={40}
+            w="160px"
+            textTransform="none"
+            cursor="pointer"
+            onClick={() => handleSort("department")}
+            className="sticky-header"
           >
-            事業部/担当/役職
+            事業部 <br />
+            <span style={{ fontSize: "0.8em" }}>
+              {renderSortIcons("department")}
+            </span>
+          </Th>
+          <Th
+            rowSpan={2}
+            textAlign="center"
+            border="1px"
+            borderColor="gray.300"
+            w="160px"
+            textTransform="none"
+            cursor="pointer"
+            onClick={() => handleSort("division")}
+            className="sticky-header"
+          >
+            担当 <br />
+            <span style={{ fontSize: "0.8em" }}>
+              {renderSortIcons("division")}
+            </span>
+          </Th>
+          <Th
+            rowSpan={2}
+            textAlign="center"
+            border="1px"
+            borderColor="gray.300"
+            w="100px"
+            textTransform="none"
+            cursor="pointer"
+            onClick={() => handleSort("position")}
+            className="sticky-header"
+          >
+            役職 <br />
+            <span style={{ fontSize: "0.8em" }}>
+              {renderSortIcons("position")}
+            </span>
           </Th>
           {skillOrder.map((skill, index) => {
             const isNewSection = skill.section !== previousSection;
@@ -166,6 +268,9 @@ const SkillsPage = () => {
                 textAlign="center"
                 border="1px"
                 borderColor="gray.300"
+                textTransform="none"
+                padding={3}
+                className="sticky-header"
               >
                 {skill.section}
               </Th>
@@ -180,8 +285,16 @@ const SkillsPage = () => {
               border="1px"
               borderColor="gray.300"
               width={30}
+              textTransform="none"
+              cursor="pointer"
+              padding={1}
+              onClick={() => handleSort(skill)}
+              className="sticky-header"
             >
-              {skill.skill_name}
+              {skill.skill_name} <br />
+              <span style={{ fontSize: "0.8em" }}>
+                {renderSortIcons(skill)}
+              </span>
             </Th>
           ))}
         </Tr>
@@ -189,27 +302,62 @@ const SkillsPage = () => {
     );
   };
 
+  const getSkillLevelColor = (level) => {
+    if (level >= 5.0) return "red.400";
+    if (level >= 4.0) return "pink.200";
+    if (level >= 3.0) return "yellow.200";
+    if (level >= 2.5) return "orange.200";
+    if (level >= 2.0) return "green.200";
+    if (level >= 1.5) return "teal.200";
+    if (level >= 1.0) return "blue.200";
+    if (level >= 0.5) return "cyan.200";
+    return "transparent";
+  };
+
   const renderRows = () => {
-    return filteredUsers.map((user, userIndex) => {
+    return sortedFilteredUsers.map((user, userIndex) => {
       const isEvenRow = userIndex % 2 === 0;
       return (
         <Tr key={userIndex} bg={isEvenRow ? "gray.200" : "white"}>
-          <Td border="1px" borderColor="gray.300" textAlign="center" width={80}>
-            {user.user_name.S}
+          <Td
+            border="1px"
+            borderColor="gray.300"
+            textAlign="center"
+            width={80}
+            color="blue.500"
+            _hover={{ color: "blue.700", textDecoration: "underline" }}
+            className="fixed-column fixed-column-1"
+          >
+            <NextLink href={`/users/${user.employee_code.N}`} passHref>
+              <Link>{user.user_name.S}</Link>
+            </NextLink>
           </Td>
           <Td
             border="1px"
             borderColor="gray.300"
             textAlign="center"
             width={150}
+            className="fixed-column fixed-column-2"
           >
-            <Text>
-              {user.department.S}
-              <br />
-              {user.division.S}
-              <br />
-              {user.position.S}
-            </Text>
+            <Text>{user.department.S}</Text>
+          </Td>
+          <Td
+            border="1px"
+            borderColor="gray.300"
+            textAlign="center"
+            width={150}
+            className="fixed-column fixed-column-3"
+          >
+            <Text>{user.division.S}</Text>
+          </Td>
+          <Td
+            border="1px"
+            borderColor="gray.300"
+            textAlign="center"
+            width={150}
+            className="fixed-column fixed-column-4"
+          >
+            <Text>{user.position.S}</Text>
           </Td>
           {skillOrder.map((skill, skillIndex) => {
             const userSkill = user.skills.L.find(
@@ -217,6 +365,7 @@ const SkillsPage = () => {
                 s.M.skill_name.S === skill.skill_name &&
                 s.M.section.S === skill.section
             );
+            const skillLevel = userSkill ? parseFloat(userSkill.M.level.N) : 0;
             return (
               <Td
                 key={skillIndex}
@@ -225,7 +374,18 @@ const SkillsPage = () => {
                 borderColor="gray.300"
                 width={30}
               >
-                {userSkill ? getSymbolForLevel(userSkill.M.level.N) : "-"}
+                {userSkill ? (
+                  <Box
+                    bg={getSkillLevelColor(skillLevel)}
+                    p={2}
+                    borderRadius="md"
+                    display="inline-block"
+                  >
+                    {skillLevel === 0 ? "0" : skillLevel.toFixed(1)}
+                  </Box>
+                ) : (
+                  "-"
+                )}
               </Td>
             );
           })}
@@ -235,53 +395,134 @@ const SkillsPage = () => {
   };
 
   return (
-    <Container maxW="container.xl" p={4}>
-      <Header user="Tanaka" />
-      <Flex mb={4} alignItems="center">
-        <Spacer />
-      </Flex>
-      <Flex mb={4} alignItems="center">
-        <Select placeholder="事業部" onChange={handleDepartmentChange} mr={2}>
-          {departments.map((department, index) => (
-            <option key={index} value={department}>
-              {department}
-            </option>
-          ))}
-        </Select>
-        <Select placeholder="担当" onChange={handleDivisionChange} mr={2}>
-          {divisions.map((division, index) => (
-            <option key={index} value={division}>
-              {division}
-            </option>
-          ))}
-        </Select>
-        <Select placeholder="役職" onChange={handlePositionChange}>
-          {positions.map((position, index) => (
-            <option key={index} value={position}>
-              {position}
-            </option>
-          ))}
-        </Select>
-      </Flex>
-      <Box
-        bg="white"
-        p={6}
-        rounded="md"
-        shadow="md"
-        overflowX="auto"
-        maxH="70vh"
-      >
-        <Box width="6000px">
-          <Table
-            variant="simple"
-            size="sm"
-            sx={{ tableLayout: "fixed", borderCollapse: "collapse" }}
+    <Container maxW="container.xl">
+      <Box className="bg-gray-100 min-h-screen">
+        <Header user="Tanaka" />
+        <Box p={4}>
+          <Flex mb={4} alignItems="center">
+            <Select
+              placeholder="事業部"
+              onChange={handleDepartmentChange}
+              mr={2}
+              width="300px"
+              bgColor="white"
+            >
+              {departments.map((department, index) => (
+                <option key={index} value={department}>
+                  {department}
+                </option>
+              ))}
+            </Select>
+            <Select
+              placeholder="担当"
+              onChange={handleDivisionChange}
+              mr={2}
+              width="300px"
+              bgColor="white"
+            >
+              {divisions.map((division, index) => (
+                <option key={index} value={division}>
+                  {division}
+                </option>
+              ))}
+            </Select>
+            <Select
+              placeholder="役職"
+              onChange={handlePositionChange}
+              width="300px"
+              bgColor="white"
+            >
+              {positions.map((position, index) => (
+                <option key={index} value={position}>
+                  {position}
+                </option>
+              ))}
+            </Select>
+          </Flex>
+          <Box
+            bg="white"
+            p={6}
+            rounded="md"
+            shadow="md"
+            overflowX="auto"
+            overflowY="auto"
+            maxH="70vh"
           >
-            <Thead>{renderHeader()}</Thead>
-            <Tbody>{renderRows()}</Tbody>
-          </Table>
+            <Tooltip
+              label={
+                <Box p={4} bg="blue.700" color="white">
+                  <Text>0: 経験なし</Text>
+                  <Text>0.5: 基礎学習した</Text>
+                  <Text>1.0: 指導ありで実施できる</Text>
+                  <Text>1.5: 指導ありで実施した</Text>
+                  <Text>2.0: 一人で実施できる</Text>
+                  <Text>2.5: 一人で実施した</Text>
+                  <Text>3.0: 指導できる（アソシ）</Text>
+                  <Text>4.0: その道のプロ（シニア）</Text>
+                  <Text>5.0: 第一人者（エグゼ）</Text>
+                </Box>
+              }
+              aria-label="Skill level legend"
+              placement="bottom-start"
+              bg="blue.700"
+              p={4}
+              rounded="md"
+              closeOnClick={false}
+            >
+              <Text
+                ml={2}
+                mb={4}
+                cursor="pointer"
+                color="blue.500"
+                width="130px"
+                _hover={{ color: "blue.700", textDecoration: "underline" }}
+              >
+                スキルレベル凡例
+              </Text>
+            </Tooltip>
+
+            <Box width="6000px">
+              <Table
+                variant="simple"
+                size="sm"
+                sx={{ tableLayout: "fixed", borderCollapse: "collapse" }}
+              >
+                <Thead>{renderHeader()}</Thead>
+                <Tbody>{renderRows()}</Tbody>
+              </Table>
+            </Box>
+          </Box>
         </Box>
       </Box>
+      <style jsx>{`
+        .sticky-header {
+          position: sticky;
+          top: 0;
+          background-color: white;
+          z-index: 2;
+        }
+        .fixed-column {
+          position: sticky;
+          left: 0;
+          background-color: white;
+          z-index: 1;
+        }
+        .fixed-column-2 {
+          left: 120px; /* Adjust based on the width of the previous fixed column */
+        }
+        .fixed-column-3 {
+          left: 280px; /* Adjust based on the width of the previous fixed columns */
+        }
+        .fixed-column-4 {
+          left: 440px; /* Adjust based on the width of the previous fixed columns */
+        }
+        thead th {
+          position: sticky;
+          top: 0;
+          background-color: white;
+          z-index: 2;
+        }
+      `}</style>
     </Container>
   );
 };
